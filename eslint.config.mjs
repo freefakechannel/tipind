@@ -4,10 +4,10 @@ import comments from "@eslint-community/eslint-plugin-eslint-comments/configs"
 import react from "@eslint-react/eslint-plugin"
 import js from "@eslint/js"
 import pluginNext from "@next/eslint-plugin-next"
-import reactCompiler from "eslint-plugin-react-compiler"
 import prettierConfig from "eslint-config-prettier"
 import diff from "eslint-plugin-diff"
 import eslintPluginImportX from "eslint-plugin-import-x"
+import reactCompiler from "eslint-plugin-react-compiler"
 import pluginReactHooks from "eslint-plugin-react-hooks"
 import regexPlugin from "eslint-plugin-regexp"
 import security from "eslint-plugin-security"
@@ -113,6 +113,8 @@ export default defineConfig([
       },
     },
     rules: {
+      "tailwindcss/no-custom-classname": "off",
+      "tailwindcss/classnames-order": "off", // Prettier plugin owns ordering
       "tailwindcss/no-custom-classname": "off",
       "@typescript-eslint/no-unused-vars": [
         "error",

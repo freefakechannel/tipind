@@ -2,10 +2,13 @@
   "cSpell.words": [
     "bunx",
     "Fira",
+    "ianvs",
     "Merriweather",
     "oklch",
     "shadcn",
-    "Stylesheet"
+    "Stylesheet",
+    "tipind",
+    "unconfigured"
   ],
   "js/ts.tsdk.path": "node_modules\\typescript\\lib"
 }
