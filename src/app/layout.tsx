@@ -1,8 +1,10 @@
+import type { Metadata, Viewport } from "next"
+import localFont from "next/font/local"
+
+import { SiteHeader } from "@/components/custom/header"
 import { ThemeProvider } from "@/components/theme-provider"
 import { siteConfig } from "@/config/site"
 import "@/styles/main.css"
-import type { Metadata, Viewport } from "next"
-import localFont from "next/font/local"
 
 const bodyFont = localFont({
   display: "swap",
@@ -19,8 +21,9 @@ const headingFont = localFont({
 })
 
 const pageTitle = `${siteConfig.name} | ${siteConfig.tagline}`
-const openGraphDescription =
+const socialDescription =
   "Quality medicines support better healthcare. Browse the pharmaceutical catalog or contact our team for ordering assistance."
+const socialImageAlt = `${siteConfig.name} — quality medicines for better healthcare`
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -63,20 +66,20 @@ export const metadata: Metadata = {
     url: "/",
     siteName: siteConfig.name,
     title: pageTitle,
-    description: openGraphDescription,
+    description: socialDescription,
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: `${siteConfig.name} — quality medicines for better healthcare`,
+        alt: socialImageAlt,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: pageTitle,
-    description: openGraphDescription,
+    description: socialDescription,
     images: ["/opengraph-image"],
   },
 }
@@ -85,20 +88,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       className={`${bodyFont.variable} ${headingFont.variable} min-w-80 scroll-pt-32 scroll-smooth motion-reduce:scroll-auto`}
+      data-scroll-behavior="smooth"
       lang="en"
-
       suppressHydrationWarning
     >
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased selection:bg-blue-200 selection:text-ink">
-        <ThemeProvider>{children}</ThemeProvider>
-        {/* <ThemeProvider>
-          <EstimateCartProvider>
-            <PwaRegistration />
-            <OfflineStatus />
-            <SiteHeader />
-            {children}
-          </EstimateCartProvider>
-        </ThemeProvider> */}
+        <ThemeProvider>
+          <SiteHeader />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

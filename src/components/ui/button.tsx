@@ -2,7 +2,8 @@
 
 import { Button as BaseButton } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
-import { motion, useReducedMotion, type HTMLMotionProps } from "motion/react"
+import { motion, useReducedMotion } from "motion/react"
+import Link from "next/link"
 import type { ComponentProps } from "react"
 
 import { cn } from "@/lib/utils"
@@ -46,6 +47,7 @@ const spring = {
   mass: 0.6,
 } as const
 
+/** Variants that lift on hover (flat ones only squish on press). */
 const LIFTED: ReadonlySet<Variant> = new Set([
   "default",
   "destructive",
@@ -53,14 +55,14 @@ const LIFTED: ReadonlySet<Variant> = new Set([
   "secondary",
 ])
 
-function useButtonMotion(variant: Variant = "default") {
+function useButtonMotion(variant: Variant) {
   const reduceMotion = useReducedMotion()
   if (reduceMotion) return {}
 
   return {
+    transition: spring,
     whileHover: LIFTED.has(variant) ? { y: -2 } : undefined,
     whileTap: { scale: variant === "link" ? 0.98 : 0.96, y: 0 },
-    transition: spring,
   }
 }
 
@@ -82,30 +84,49 @@ export function Button({
 
   return (
     <BaseButton
+      className={cn(buttonVariants({ size, variant }), className)}
       data-slot="button"
       render={<motion.button {...motionProps} />}
-      className={cn(buttonVariants({ size, variant }), className)}
       type={type}
       {...props}
     />
   )
 }
 
-export interface ButtonLinkProps
-  extends HTMLMotionProps<"a">, VariantProps<typeof buttonVariants> {}
+const MotionLink = motion.create(Link)
+const EXTERNAL_HREF = /^(?:https?:|mailto:|tel:|\/\/)/
+
+export type ButtonLinkProps = ComponentProps<typeof MotionLink> &
+  VariantProps<typeof buttonVariants>
 
 export function ButtonLink({
   className,
+  href,
   size,
   variant,
   ...props
 }: ButtonLinkProps) {
   const motionProps = useButtonMotion(variant ?? "default")
+  const classes = cn(buttonVariants({ size, variant }), className)
+
+  // External, mailto and tel links don't benefit from next/link.
+  if (typeof href === "string" && EXTERNAL_HREF.test(href)) {
+    return (
+      <motion.a
+        className={classes}
+        data-slot="button-link"
+        href={href}
+        {...motionProps}
+        {...props}
+      />
+    )
+  }
 
   return (
-    <motion.a
+    <MotionLink
+      className={classes}
       data-slot="button-link"
-      className={cn(buttonVariants({ size, variant }), className)}
+      href={href}
       {...motionProps}
       {...props}
     />

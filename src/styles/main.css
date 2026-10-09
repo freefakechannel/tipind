@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tailwind-animations";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -23,7 +24,7 @@
   --border: #e2e8f0; /* slate-200 */
   --input: #cbd5e1; /* slate-300 */
   --ring: #60a5fa; /* blue-400 */
-  --radius: 0.875rem;
+  --radius: 1.25rem;
   --ink: #172554; /* blue-950 */
   --ink-soft: #334155; /* slate-700 */
   --brand-blue: #2563eb; /* blue-600 */
@@ -31,8 +32,6 @@
   --whatsapp: #22c55e; /* green-500 */
   --whatsapp-hover: #16a34a; /* green-600 */
   --surface-tint: #eff6ff; /* blue-50 */
-  --header-strip: #0f172a; /* slate-900 */
-  --header-strip-foreground: #f1f5f9; /* slate-100 */
   --hero-surface: #eff6ff; /* blue-50 */
   --hero-image-surface: #dbeafe; /* blue-100 */
   --hero-scrim: #f8fafc; /* slate-50 */
@@ -94,8 +93,6 @@
   --whatsapp: #22c55e;
   --whatsapp-hover: #16a34a;
   --surface-tint: #0f172a;
-  --header-strip: #020617;
-  --header-strip-foreground: #cbd5e1; /* slate-300 */
   --hero-surface: #0f172a;
   --hero-image-surface: #020617;
   --hero-scrim: #020617;
@@ -158,8 +155,6 @@
   --color-whatsapp: var(--whatsapp);
   --color-whatsapp-hover: var(--whatsapp-hover);
   --color-surface-tint: var(--surface-tint);
-  --color-header-strip: var(--header-strip);
-  --color-header-strip-foreground: var(--header-strip-foreground);
   --color-hero-surface: var(--hero-surface);
   --color-hero-image-surface: var(--hero-image-surface);
   --color-hero-scrim: var(--hero-scrim);
@@ -187,13 +182,22 @@
   --color-footer-accent: var(--footer-accent);
   --color-footer-border: var(--footer-border);
   --color-footer-card: var(--footer-card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-xs: calc(var(--radius) * 0.4);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
   --shadow-header-rest: var(--header-shadow-rest);
   --shadow-header-floating: var(--header-shadow-floating);
   --shadow-soft: var(--elevation-soft);
   --shadow-card: var(--elevation-card);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
