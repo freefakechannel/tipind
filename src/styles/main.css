@@ -3,62 +3,136 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ==========================================================================
+   1. PALETTE: the only place raw colors live.
+   To re-brand, replace the `primary` scale (violet scale in the comment below).
+   `static` keeps every variable in the output so :root/.dark can reference them.
+   ========================================================================== */
+@theme static {
+  /* primary: blue. Violet swap: 50 #f5f3ff, 100 #ede9fe, 200 #ddd6fe,
+     300 #c4b5fd, 400 #a78bfa, 500 #8b5cf6, 600 #7c3aed, 700 #6d28d9,
+     800 #5b21b6, 900 #4c1d95, 950 #2e1065 */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
+
+  /* neutral: slate (overrides Tailwind's built-in neutral) */
+  --color-neutral-50: #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
+  --color-neutral-950: #020617;
+
+  /* highlight: cyan, used for gradients and accents next to primary */
+  --color-highlight-50: #ecfeff;
+  --color-highlight-100: #cffafe;
+  --color-highlight-200: #a5f3fc;
+  --color-highlight-300: #67e8f9;
+  --color-highlight-400: #22d3ee;
+  --color-highlight-500: #06b6d4;
+  --color-highlight-600: #0891b2;
+  --color-highlight-700: #0e7490;
+  --color-highlight-800: #155e75;
+  --color-highlight-900: #164e63;
+  --color-highlight-950: #083344;
+
+  /* success: emerald */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+  --color-success-950: #022c22;
+
+  /* status */
+  --color-danger-400: #f87171;
+  --color-danger-600: #dc2626;
+  --color-whatsapp-500: #22c55e;
+  --color-whatsapp-600: #16a34a;
+}
+
+/* ==========================================================================
+   2. SEMANTIC TOKENS (shadcn-compatible). Only reference the palette.
+   ========================================================================== */
 :root {
   color-scheme: light;
-  --background: #f8fafc; /* slate-50 */
-  --foreground: #0f172a; /* slate-900 */
+  --background: var(--color-neutral-50);
+  --foreground: var(--color-neutral-900);
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: var(--color-neutral-900);
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #2563eb; /* blue-600 */
-  --primary-text: #1d4ed8; /* blue-700, AA on light surfaces */
+  --popover-foreground: var(--color-neutral-900);
+  --primary: var(--color-primary-600);
+  --primary-text: var(--color-primary-700);
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9; /* slate-100 */
-  --secondary-foreground: #1e293b; /* slate-800 */
-  --muted: #f1f5f9; /* slate-100 */
-  --muted-foreground: #475569; /* slate-600, safer contrast than 500 */
-  --accent: #eff6ff; /* blue-50 */
-  --accent-foreground: #1d4ed8; /* blue-700 */
-  --destructive: #dc2626; /* red-600 */
-  --border: #e2e8f0; /* slate-200 */
-  --input: #cbd5e1; /* slate-300 */
-  --ring: #60a5fa; /* blue-400 */
+  --secondary: var(--color-neutral-100);
+  --secondary-foreground: var(--color-neutral-800);
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-600);
+  --accent: var(--color-primary-100);
+  --accent-foreground: var(--color-primary-700);
+  --destructive: var(--color-danger-600);
+  --border: var(--color-neutral-200);
+  --input: var(--color-neutral-300);
+  --ring: var(--color-primary-400);
   --radius: 1.25rem;
-  --ink: #172554; /* blue-950 */
-  --ink-soft: #334155; /* slate-700 */
-  --brand-blue: #2563eb; /* blue-600 */
-  --brand-deep: #1e3a8a; /* blue-900 */
-  --whatsapp: #22c55e; /* green-500 */
-  --whatsapp-hover: #16a34a; /* green-600 */
-  --surface-tint: #eff6ff; /* blue-50 */
-  --hero-surface: #eff6ff; /* blue-50 */
-  --hero-image-surface: #dbeafe; /* blue-100 */
-  --hero-scrim: #f8fafc; /* slate-50 */
-  --catalog-surface: #f8fafc;
-  --catalog-end: #eff6ff;
-  --faq-start: #eff6ff;
-  --faq-middle: #f8fafc;
-  --faq-end: #eff6ff;
+
+  --ink: var(--color-primary-950);
+  --ink-soft: var(--color-neutral-700);
+  --brand-blue: var(--color-primary-600);
+  --brand-deep: var(--color-primary-900);
+  --whatsapp: var(--color-whatsapp-500);
+  --whatsapp-hover: var(--color-whatsapp-600);
+
+  --surface-tint: var(--color-primary-50);
+  --hero-surface: var(--color-primary-50);
+  --hero-image-surface: var(--color-primary-100);
+  --hero-scrim: var(--color-neutral-50);
+  --catalog-surface: var(--color-neutral-50);
+  --catalog-end: var(--color-primary-50);
+  --faq-start: var(--color-primary-50);
+  --faq-middle: var(--color-neutral-50);
+  --faq-end: var(--color-primary-50);
   --about-start: #ffffff;
-  --about-middle: #f8fafc;
-  --about-end: #eff6ff;
-  --contact-section-start: #eff6ff;
-  --contact-section-end: #f8fafc;
-  --about-disc-start: #eff6ff; /* blue-50 */
-  --about-disc-middle: #dbeafe; /* blue-100 */
-  --about-disc-end: #bfdbfe; /* blue-200 */
-  --contact-start: #1e3a8a; /* blue-900 */
-  --contact-middle: #1e40af; /* blue-800 */
-  --contact-end: #2563eb; /* blue-600 */
-  --footer-start: #020617; /* slate-950 */
-  --footer-middle: #0f172a; /* slate-900 */
-  --footer-end: #020617;
-  --footer-foreground: #e2e8f0; /* slate-200 */
-  --footer-muted: #94a3b8; /* slate-400 */
-  --footer-accent: #60a5fa; /* blue-400 */
-  --footer-border: #1e293b; /* slate-800 */
-  --footer-card: #0f172a; /* slate-900 */
+  --about-middle: var(--color-neutral-50);
+  --about-end: var(--color-primary-50);
+  --contact-section-start: var(--color-primary-50);
+  --contact-section-end: var(--color-neutral-50);
+  --about-disc-start: var(--color-primary-50);
+  --about-disc-middle: var(--color-primary-100);
+  --about-disc-end: var(--color-primary-200);
+  --contact-start: var(--color-primary-900);
+  --contact-middle: var(--color-primary-800);
+  --contact-end: var(--color-primary-600);
+
+  --footer-start: var(--color-neutral-950);
+  --footer-middle: var(--color-neutral-900);
+  --footer-end: var(--color-neutral-950);
+  --footer-foreground: var(--color-neutral-200);
+  --footer-muted: var(--color-neutral-400);
+  --footer-accent: var(--color-primary-400);
+  --footer-border: var(--color-neutral-800);
+  --footer-card: var(--color-neutral-900);
+
   --header-shadow-rest: 0 1px 0 rgb(15 23 42 / 6%);
   --header-shadow-floating: 0 14px 38px rgb(15 23 42 / 14%);
   --elevation-soft: 0 16px 46px rgb(30 58 138 / 8%);
@@ -67,68 +141,74 @@
 
 .dark {
   color-scheme: dark;
-  --background: #020617; /* slate-950 */
-  --foreground: #f1f5f9; /* slate-100 */
-  --card: #0f172a; /* slate-900 */
-  --card-foreground: #f1f5f9;
-  --popover: #0f172a;
-  --popover-foreground: #f1f5f9;
-  --primary: #2563eb; /* blue-600, keeps white text AA */
-  --primary-text: #60a5fa; /* blue-400 */
+  --background: var(--color-neutral-950);
+  --foreground: var(--color-neutral-100);
+  --card: var(--color-neutral-900);
+  --card-foreground: var(--color-neutral-100);
+  --popover: var(--color-neutral-900);
+  --popover-foreground: var(--color-neutral-100);
+  --primary: var(--color-primary-600);
+  --primary-text: var(--color-primary-400);
   --primary-foreground: #ffffff;
-  --secondary: #1e293b; /* slate-800 */
-  --secondary-foreground: #e2e8f0; /* slate-200 */
-  --muted: #1e293b; /* slate-800 */
-  --muted-foreground: #94a3b8; /* slate-400 */
-  --accent: #172554; /* blue-950 */
-  --accent-foreground: #dbeafe; /* blue-100 */
-  --destructive: #f87171; /* red-400 */
-  --border: #1e293b; /* slate-800 */
-  --input: #334155; /* slate-700 */
-  --ring: #3b82f6; /* blue-500 */
-  --ink: #eff6ff; /* blue-50 */
-  --ink-soft: #cbd5e1; /* slate-300 */
-  --brand-blue: #60a5fa; /* blue-400 */
-  --brand-deep: #172554; /* blue-950 */
-  --whatsapp: #22c55e;
-  --whatsapp-hover: #16a34a;
-  --surface-tint: #0f172a;
-  --hero-surface: #0f172a;
-  --hero-image-surface: #020617;
-  --hero-scrim: #020617;
-  --catalog-surface: #020617;
-  --catalog-end: #0f172a;
-  --faq-start: #0f172a;
-  --faq-middle: #020617;
-  --faq-end: #0f172a;
-  --about-start: #020617;
-  --about-middle: #0f172a;
-  --about-end: #172554;
-  --contact-section-start: #0f172a;
-  --contact-section-end: #020617;
-  --about-disc-start: #1e3a8a; /* blue-900 */
-  --about-disc-middle: #172554; /* blue-950 */
-  --about-disc-end: #0f172a;
-  --contact-start: #172554; /* blue-950 */
-  --contact-middle: #1e3a8a; /* blue-900 */
-  --contact-end: #1d4ed8; /* blue-700 */
-  --footer-start: #0f172a;
-  --footer-middle: #0b1220;
-  --footer-end: #020617;
-  --footer-foreground: #cbd5e1;
-  --footer-muted: #94a3b8;
-  --footer-accent: #60a5fa;
-  --footer-border: #1e293b;
-  --footer-card: #0f172a;
+  --secondary: var(--color-neutral-800);
+  --secondary-foreground: var(--color-neutral-200);
+  --muted: var(--color-neutral-800);
+  --muted-foreground: var(--color-neutral-400);
+  --accent: var(--color-primary-950);
+  --accent-foreground: var(--color-primary-100);
+  --destructive: var(--color-danger-400);
+  --border: var(--color-neutral-800);
+  --input: var(--color-neutral-700);
+  --ring: var(--color-primary-500);
+
+  --ink: var(--color-primary-50);
+  --ink-soft: var(--color-neutral-300);
+  --brand-blue: var(--color-primary-400);
+  --brand-deep: var(--color-primary-950);
+
+  --surface-tint: var(--color-neutral-900);
+  --hero-surface: var(--color-neutral-900);
+  --hero-image-surface: var(--color-neutral-950);
+  --hero-scrim: var(--color-neutral-950);
+  --catalog-surface: var(--color-neutral-950);
+  --catalog-end: var(--color-neutral-900);
+  --faq-start: var(--color-neutral-900);
+  --faq-middle: var(--color-neutral-950);
+  --faq-end: var(--color-neutral-900);
+  --about-start: var(--color-neutral-950);
+  --about-middle: var(--color-neutral-900);
+  --about-end: var(--color-primary-950);
+  --contact-section-start: var(--color-neutral-900);
+  --contact-section-end: var(--color-neutral-950);
+  --about-disc-start: var(--color-primary-900);
+  --about-disc-middle: var(--color-primary-950);
+  --about-disc-end: var(--color-neutral-900);
+  --contact-start: var(--color-primary-950);
+  --contact-middle: var(--color-primary-900);
+  --contact-end: var(--color-primary-700);
+
+  --footer-start: var(--color-neutral-900);
+  --footer-middle: var(--color-neutral-950);
+  --footer-end: var(--color-neutral-950);
+  --footer-foreground: var(--color-neutral-300);
+  --footer-muted: var(--color-neutral-400);
+  --footer-accent: var(--color-primary-400);
+  --footer-border: var(--color-neutral-800);
+  --footer-card: var(--color-neutral-900);
+
   --header-shadow-rest: 0 1px 0 rgb(0 0 0 / 20%);
   --header-shadow-floating: 0 14px 38px rgb(0 0 0 / 40%);
   --elevation-soft: 0 20px 55px rgb(0 0 0 / 35%);
   --elevation-card: 0 8px 24px rgb(0 0 0 / 28%);
 }
 
+/* ==========================================================================
+   3. TAILWIND MAPPING: semantic tokens become utilities (bg-card, text-ink…).
+   ========================================================================== */
 @theme inline {
   --font-sans: var(--font-body);
   --font-display: var(--font-heading);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -154,6 +234,7 @@
   --color-brand-deep: var(--brand-deep);
   --color-whatsapp: var(--whatsapp);
   --color-whatsapp-hover: var(--whatsapp-hover);
+
   --color-surface-tint: var(--surface-tint);
   --color-hero-surface: var(--hero-surface);
   --color-hero-image-surface: var(--hero-image-surface);
@@ -182,6 +263,7 @@
   --color-footer-accent: var(--footer-accent);
   --color-footer-border: var(--footer-border);
   --color-footer-card: var(--footer-card);
+
   --radius-xs: calc(var(--radius) * 0.4);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -190,12 +272,14 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
   --shadow-header-rest: var(--header-shadow-rest);
   --shadow-header-floating: var(--header-shadow-floating);
   --shadow-soft: var(--elevation-soft);
   --shadow-card: var(--elevation-card);
 }
 
+/* Theme switch: only the circular reveal is visible */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;

@@ -1,12 +1,10 @@
+import { HeroSection } from "@/components/custom/hero-section"
 import { Button } from "@/components/ui/button"
 
 export default function Home() {
   return (
     <main>
-      <div id="home">
-        extra content to check the scroll behavior and active section detection.
-        this is home section
-      </div>
+      <HeroSection />
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure ratione
       veniam nam ea delectus unde officia, sapiente reiciendis eveniet illum?
       Corrupti, velit praesentium! Harum minus dicta quis aperiam accusamus

@@ -11,7 +11,6 @@ import {
 import Link from "next/link"
 import { useState, type MouseEvent } from "react"
 
-import { scrollToSection } from "@/lib/scroll"
 import { BrandLogo } from "@/components/custom/logo"
 import { ThemeToggle } from "@/components/custom/theme-toggle"
 import { TopStrip } from "@/components/custom/top-strip"
@@ -20,6 +19,7 @@ import { Container } from "@/components/ui/container"
 import { siteContent } from "@/config/content"
 import { siteConfig } from "@/config/site"
 import { useActiveSection } from "@/hooks/use-active-section"
+import { scrollToSection } from "@/lib/scroll"
 
 const STRIP_HEIGHT = 36 // px, matches h-9 in TopStrip
 const FLOAT_GAP = 10 // px, keep in sync with --float-gap below
@@ -60,7 +60,7 @@ function DesktopNav({ activeId, onSelect }: NavProps) {
       {NAV_ITEMS.map((item) => (
         <Link
           aria-current={item.id === activeId ? "location" : undefined}
-          className="relative isolate inline-flex min-h-10 items-center rounded-full px-3.5 text-[0.78rem] font-semibold text-slate-600 transition-colors duration-150 hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-[current=location]:text-blue-700 dark:text-slate-300 dark:hover:text-blue-100 dark:aria-[current=location]:text-blue-200"
+          className="relative isolate inline-flex min-h-10 items-center rounded-full px-3.5 text-[0.78rem] font-semibold text-neutral-600 transition-colors duration-150 hover:text-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-[current=location]:text-primary-700 dark:text-neutral-300 dark:hover:text-primary-100 dark:aria-[current=location]:text-primary-200"
           href={`/#${item.id}`}
           key={item.id}
           onBlur={() => {
@@ -79,7 +79,7 @@ function DesktopNav({ activeId, onSelect }: NavProps) {
           {highlighted === item.id && (
             <motion.span
               aria-hidden="true"
-              className="absolute inset-0 -z-10 rounded-full bg-blue-100 dark:bg-blue-900/50"
+              className="absolute inset-0 -z-10 rounded-full bg-primary-100 dark:bg-primary-900/50"
               layoutId="nav-pill"
               transition={reduceMotion ? { duration: 0 } : navSpring}
             />
@@ -96,12 +96,12 @@ function MobileNav({ activeId, onSelect }: NavProps) {
     <Container className="md:hidden">
       <nav
         aria-label={siteContent.ui.mobileNavigationLabel}
-        className="flex h-12 items-center gap-1 border-t border-slate-200/70 dark:border-slate-800"
+        className="flex h-12 items-center gap-1 border-t border-border"
       >
         {MOBILE_ITEMS.map((item) => (
           <Link
             aria-current={item.id === activeId ? "location" : undefined}
-            className="inline-flex h-9 min-w-0 flex-1 items-center justify-center rounded-full px-1.5 text-xs font-semibold text-slate-600 transition-colors active:bg-blue-100 aria-[current=location]:bg-blue-100 aria-[current=location]:text-blue-800 dark:text-slate-300 dark:active:bg-blue-900/50 dark:aria-[current=location]:bg-blue-900/50 dark:aria-[current=location]:text-blue-100"
+            className="inline-flex h-9 min-w-0 flex-1 items-center justify-center rounded-full px-1.5 text-xs font-semibold text-neutral-600 transition-colors active:bg-primary-100 aria-[current=location]:bg-primary-100 aria-[current=location]:text-primary-800 dark:text-neutral-300 dark:active:bg-primary-900/50 dark:aria-[current=location]:bg-primary-900/50 dark:aria-[current=location]:text-primary-100"
             href={`/#${item.id}`}
             key={item.id}
             onClick={(event) => {
@@ -180,7 +180,7 @@ export function SiteHeader() {
 
       <motion.div
         aria-hidden="true"
-        className="fixed inset-x-0 top-0 z-60 h-0.75 origin-left bg-linear-to-r from-primary to-cyan-300"
+        className="fixed inset-x-0 top-0 z-60 h-0.75 origin-left bg-linear-to-r from-primary to-highlight-300"
         style={{ scaleX: reduceMotion ? scrollYProgress : barSpring }}
       />
 
@@ -200,7 +200,7 @@ export function SiteHeader() {
           >
             {/* Desktop: floating border + shadow fade in */}
             <motion.div
-              className="absolute inset-0 rounded-[inherit] border border-blue-200/80 shadow-header-floating max-md:hidden dark:border-primary/50"
+              className="absolute inset-0 rounded-[inherit] border border-primary-200/80 shadow-header-floating max-md:hidden dark:border-primary/50"
               style={{ opacity: progress }}
             />
             {/* Desktop: docked hairline fades out as it floats */}
@@ -220,7 +220,7 @@ export function SiteHeader() {
               <div className="ml-auto flex shrink-0 items-center gap-1.5 md:gap-2">
                 <ButtonLink
                   aria-label={siteContent.ui.chatAction}
-                  className="w-9 gap-2 px-0 shadow-md shadow-blue-900/15 min-[400px]:w-auto min-[400px]:px-3 sm:px-3.5 [&_svg]:size-3.5"
+                  className="w-9 gap-2 px-0 shadow-md shadow-primary-900/15 min-[400px]:w-auto min-[400px]:px-3 sm:px-3.5 [&_svg]:size-3.5"
                   href={siteConfig.contact.whatsappHref}
                   rel="noreferrer"
                   size="sm"
@@ -235,7 +235,7 @@ export function SiteHeader() {
                     className="hidden sm:block"
                   />
                 </ButtonLink>
-                <ThemeToggle className="size-9 border border-border text-ink-soft hover:bg-blue-100 hover:text-blue-700 md:size-10 dark:text-foreground dark:hover:bg-blue-950 dark:hover:text-blue-200" />
+                <ThemeToggle className="size-9 border border-border text-ink-soft hover:bg-primary-100 hover:text-primary-700 md:size-10 dark:hover:bg-primary-950 dark:hover:text-primary-200" />
               </div>
             </Container>
             <MobileNav activeId={activeId} onSelect={handleSelect} />
