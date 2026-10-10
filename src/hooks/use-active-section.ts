@@ -33,7 +33,6 @@ export function useActiveSection(ids: readonly string[], homeId: string) {
 
   useEffect(() => {
     const sectionIds = key.split(",")
-    const lastId = sectionIds.at(-1) ?? homeId
     let sections: SectionOffset[] = []
 
     const resolve = () => {
@@ -42,7 +41,7 @@ export function useActiveSection(ids: readonly string[], homeId: string) {
 
       const atBottom =
         window.innerHeight + y >= document.documentElement.scrollHeight - 4
-      if (atBottom) return lastId
+      if (atBottom) return sections.at(-1)?.id ?? homeId
 
       let current = homeId
       for (const section of sections) {
@@ -65,6 +64,7 @@ export function useActiveSection(ids: readonly string[], homeId: string) {
             : Number.POSITIVE_INFINITY,
         }
       })
+      sections.sort((a, b) => a.top - b.top)
       sync()
     }
 

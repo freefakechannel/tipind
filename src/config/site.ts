@@ -34,16 +34,16 @@ export const siteConfig = {
   navigation: [
     { label: "Home", mobileLabel: "Home", footerLabel: "Home", href: "#home" },
     {
-      label: "About Us",
-      mobileLabel: "About",
-      footerLabel: "About Us",
-      href: "#about",
-    },
-    {
       label: "Catalog",
       mobileLabel: "Catalog",
       footerLabel: "Pharmaceutical Catalog",
       href: "#catalog",
+    },
+    {
+      label: "About Us",
+      mobileLabel: "About",
+      footerLabel: "About Us",
+      href: "#about",
     },
     {
       label: "FAQs",

@@ -11,15 +11,16 @@ import {
 import Link from "next/link"
 import { useState, type MouseEvent } from "react"
 
-import { BrandLogo } from "@/components/custom/logo"
-import { ThemeToggle } from "@/components/custom/theme-toggle"
-import { TopStrip } from "@/components/custom/top-strip"
+import { BrandLogo } from "@/components/layout/logo"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
+import { TopStrip } from "@/components/layout/top-strip"
 import { ButtonLink } from "@/components/ui/button"
 import { Container } from "@/components/ui/container"
 import { siteContent } from "@/config/content"
 import { siteConfig } from "@/config/site"
 import { useActiveSection } from "@/hooks/use-active-section"
 import { scrollToSection } from "@/lib/scroll"
+import { EstimateTrigger } from "@/features/estimate/components/estimate-trigger"
 
 const STRIP_HEIGHT = 36 // px, matches h-9 in TopStrip
 const FLOAT_GAP = 10 // px, keep in sync with --float-gap below
@@ -235,6 +236,7 @@ export function SiteHeader() {
                     className="hidden sm:block"
                   />
                 </ButtonLink>
+                <EstimateTrigger />
                 <ThemeToggle className="size-9 border border-border text-ink-soft hover:bg-primary-100 hover:text-primary-700 md:size-10 dark:hover:bg-primary-950 dark:hover:text-primary-200" />
               </div>
             </Container>

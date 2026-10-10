@@ -29,8 +29,7 @@ export const siteContent = {
     proofPrimary: "Quality focused",
     proofSecondary: "Worldwide shipping",
     imageBadge: "Carefully sourced healthcare",
-    imageAlt:
-      "Medicine bottles image.",
+    imageAlt: "Medicine bottles image.",
     contactEyebrow: "Here for your healthcare needs",
     contactDescription:
       "For product availability and orders, contact our team directly.",
@@ -96,6 +95,7 @@ export const siteContent = {
       manufacturer: "Manufacturer",
       packaging: "Packaging",
       rate: "RATE (USD)",
+      estimateButton: "Add to estimate",
     },
     status: {
       unconfigured: "No records are available.",
@@ -145,8 +145,13 @@ export const siteContent = {
     quantityLabel: "Quantity",
     lineTotalLabel: "Line total",
     totalLabel: "Estimated total",
+    singlePacketPriceLabel: "Single packet price",
+    packLabel: "Pack",
     packPriceNote: "Unit prices follow the catalog rate for each listed pack.",
     clearAction: "Clear estimate",
+    closeAction: "Close estimate",
+    continueBrowsingAction: "Continue browsing",
+    packetCountLabel: "Packet count",
     copyAction: "Copy estimate summary",
     copiedMessage: "Estimate summary copied on this device.",
     copyFailureMessage:

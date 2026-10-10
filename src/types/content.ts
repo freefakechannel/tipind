@@ -89,6 +89,7 @@ export interface SiteContent {
       manufacturer: string
       packaging: string
       rate: string
+      estimateButton: string
     }
     status: {
       unconfigured: string
@@ -132,6 +133,11 @@ export interface SiteContent {
     totalLabel: string
     packPriceNote: string
     clearAction: string
+    closeAction: string
+    continueBrowsingAction: string
+    singlePacketPriceLabel: string
+    packLabel: string
+    packetCountLabel: string
     copyAction: string
     copiedMessage: string
     copyFailureMessage: string
