@@ -74,6 +74,5 @@ export const siteConfig = {
   catalog: {
     dataUrl: publicValue(process.env.NEXT_PUBLIC_CATALOG_DATA_URL),
     xorKey: publicValue(process.env.NEXT_PUBLIC_CATALOG_XOR_KEY),
-    pdfUrl: publicValue(process.env.NEXT_PUBLIC_CATALOG_PDF_URL),
   },
 } satisfies SiteConfig
