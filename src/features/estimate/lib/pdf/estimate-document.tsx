@@ -255,7 +255,16 @@ function createStyles(c: PdfPalette) {
 
 type Styles = ReturnType<typeof createStyles>
 
+/**
+ * Plain function, deliberately NOT a React component (lowercase, no hooks,
+ * `"use no memo"`). @react-pdf resolves `render` props by calling function
+ * components directly, outside React's render phase — a compiler-memoized
+ * component would throw "Invalid hook call" on page 2+. Returning JSX from
+ * a plain function keeps the PDF tree host-elements-only.
+ */
 function columnHeader(copy: typeof siteContent.estimate.pdf, s: Styles) {
+  "use no memo"
+
   return (
     <View style={s.tableHead}>
       <Text style={[s.headText, { width: COLUMN.index }]}>
