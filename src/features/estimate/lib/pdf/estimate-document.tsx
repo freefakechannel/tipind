@@ -36,13 +36,30 @@ export interface EstimateDocumentInput {
 }
 
 /** Standard PDF fonts only cover Latin text; anything else becomes "?". */
-const pdfText = (value: string) =>
-  value.replace(
-    /[^\u0020-\u007E\u00A0-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u2022\u2026\u20AC]/g,
-    "?"
-  )
+const PDF_CHAR_MAP: Readonly<Record<string, string>> = {
+  // Corrupted-source marker: drop it instead of printing "?".
+  "\ufffd": "",
+  "\u03b1": "alpha",
+  "\u03b2": "beta",
+  "\u03b3": "gamma",
+  "\u03bc": "mu",
+  "\u2264": "<=",
+  "\u2265": ">=",
+  "\u00b1": "+/-",
+  "\u2212": "-",
+}
 
-const COLUMN = { index: 22, pack: 62, quantity: 36, unit: 62, total: 72 }
+const pdfText = (value: string) =>
+  value
+    .replace(
+      /[^\u0020-\u007E\u00A0-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u2022\u2026\u20AC]/g,
+      (char) => PDF_CHAR_MAP[char] ?? "?"
+    )
+    .replace(/ {2,}/g, " ")
+
+// Widths sized for the worst case the estimate limits allow:
+// index "500", qty "9,999", unit "$100,000.000", total "$999,900,000.000".
+const COLUMN = { index: 20, pack: 60, quantity: 34, unit: 60, total: 80 }
 const MARGIN = 40
 
 function createStyles(c: PdfPalette) {
@@ -237,13 +254,16 @@ function createStyles(c: PdfPalette) {
 
 type Styles = ReturnType<typeof createStyles>
 
-function ColumnHeader({
-  copy,
-  s,
-}: {
-  copy: typeof siteContent.estimate.pdf
-  s: Styles
-}) {
+/**
+ * Plain function, deliberately NOT a React component (lowercase, no hooks,
+ * `"use no memo"`). @react-pdf resolves `render` props by calling function
+ * components directly, outside React's render phase — a compiler-memoized
+ * component would throw "Invalid hook call" on page 2+. Returning JSX from
+ * a plain function keeps the PDF tree host-elements-only.
+ */
+function columnHeader(copy: typeof siteContent.estimate.pdf, s: Styles) {
+  "use no memo"
+
   return (
     <View style={s.tableHead}>
       <Text style={[s.headText, { width: COLUMN.index }]}>
@@ -298,7 +318,7 @@ export function createEstimateDocument({
         <View
           fixed
           render={({ pageNumber }) =>
-            pageNumber > 1 ? <ColumnHeader copy={copy} s={s} /> : null
+            pageNumber > 1 ? columnHeader(copy, s) : null
           }
           style={s.repeatHead}
         />
@@ -355,7 +375,7 @@ export function createEstimateDocument({
         </View>
 
         <View style={{ marginTop: 18 }}>
-          <ColumnHeader copy={copy} s={s} />
+          {columnHeader(copy, s)}
           {items.map((item, index) => (
             <View
               key={item.id}
