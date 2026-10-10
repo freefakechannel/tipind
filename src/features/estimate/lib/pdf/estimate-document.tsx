@@ -53,7 +53,7 @@ const PDF_CHAR_MAP: ReadonlyMap<string, string> = new Map([
 const pdfText = (value: string) =>
   value
     .replace(
-      /[^\u0020-\u007E\u00A0-\u00FF\u2013-\u2014\u2018\u2019\u201C\u201D\u2022\u2026\u20AC]/g,
+      /[^\u0020-\u007E\u00A0-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u2022\u2026\u20AC]/g,
       (char) => PDF_CHAR_MAP.get(char) ?? "?"
     )
     .replace(/ {2,}/g, " ")
@@ -255,16 +255,7 @@ function createStyles(c: PdfPalette) {
 
 type Styles = ReturnType<typeof createStyles>
 
-/**
- * Plain function, deliberately NOT a React component (lowercase, no hooks,
- * `"use no memo"`). @react-pdf resolves `render` props by calling function
- * components directly, outside React's render phase — a compiler-memoized
- * component would throw "Invalid hook call" on page 2+. Returning JSX from
- * a plain function keeps the PDF tree host-elements-only.
- */
 function columnHeader(copy: typeof siteContent.estimate.pdf, s: Styles) {
-  "use no memo"
-
   return (
     <View style={s.tableHead}>
       <Text style={[s.headText, { width: COLUMN.index }]}>
