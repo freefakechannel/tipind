@@ -366,6 +366,18 @@ html[data-resizing] * {
   }
 }
 
+/* Theme switch: only the circular reveal is visible */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::selection {
+  background-color: yellow;
+  color: black;
+}
+
 /* Modern scrollbars: thin, translucent, theme-aware. */
 @layer base {
   * {
@@ -375,17 +387,5 @@ html[data-resizing] * {
   }
   html {
     scrollbar-width: auto;
-  }
-
-  /* Theme switch: only the circular reveal is visible */
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
-  }
-
-  ::selection {
-    background-color: yellow;
-    color: black;
   }
 }
