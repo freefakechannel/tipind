@@ -4,36 +4,41 @@ import { persist, type PersistStorage } from "zustand/middleware"
 import type { CatalogProduct } from "@/features/catalog/types"
 
 import {
+  clampQuantity,
+  createLineItem,
+  packetCount,
+  totalMills,
+} from "../lib/line-items"
+import { parseItems, serializeItems } from "../lib/storage"
+import type { AddResult, EstimateLineItem } from "../types"
+
+import {
+  DEFAULT_WIDTH,
   MAX_LINE_ITEMS,
   MAX_QUANTITY,
   STORAGE_KEY,
   STORAGE_VERSION,
 } from "../constants"
-import {
-  clampQuantity,
-  createLineItem,
-  packetCount,
-  totalCents,
-} from "../lib/line-items"
-import { parseItems, serializeItems } from "../lib/storage"
-import type { AddResult, EstimateLineItem } from "../types"
+import { clampWidth } from "../lib/width"
 
 interface EstimateActions {
   addProduct: (product: CatalogProduct) => AddResult
   setQuantity: (id: string, quantity: number) => void
+  setWidth: (width: number) => void
   removeItem: (id: string) => void
   clear: () => void
-  openDrawer: () => void
-  setDrawerOpen: (open: boolean) => void
+  setOpen: (open: boolean) => void
+  toggle: () => void
 }
 
 export interface EstimateState {
   items: readonly EstimateLineItem[]
-  isDrawerOpen: boolean
+  isOpen: boolean
   /** False until the saved estimate has been read (avoids hydration mismatch). */
   isHydrated: boolean
   isStorageAvailable: boolean
   actions: EstimateActions
+  width: number
 }
 
 interface PersistedEstimate {
@@ -59,7 +64,6 @@ const storage: PersistStorage<PersistedEstimate> = {
       window.localStorage.setItem(name, serialized)
       lastWritten = serialized
     } catch {
-      // Guarded: persist re-runs on every set, so only flip the flag once.
       if (useEstimateStore.getState().isStorageAvailable) {
         useEstimateStore.setState({ isStorageAvailable: false })
       }
@@ -79,9 +83,10 @@ export const useEstimateStore = create<EstimateState>()(
   persist(
     (set, get) => ({
       items: [],
-      isDrawerOpen: false,
+      isOpen: false,
       isHydrated: false,
       isStorageAvailable: true,
+      width: DEFAULT_WIDTH,
 
       actions: {
         addProduct: (product) => {
@@ -124,11 +129,14 @@ export const useEstimateStore = create<EstimateState>()(
         clear: () => {
           set({ items: [] })
         },
-        openDrawer: () => {
-          set({ isDrawerOpen: true })
+        setOpen: (open) => {
+          set({ isOpen: open })
         },
-        setDrawerOpen: (open) => {
-          set({ isDrawerOpen: open })
+        toggle: () => {
+          set((state) => ({ isOpen: !state.isOpen }))
+        },
+        setWidth: (width) => {
+          set({ width: clampWidth(width) })
         },
       },
     }),
@@ -145,5 +153,5 @@ export const useEstimateStore = create<EstimateState>()(
 
 export const selectPacketCount = (state: EstimateState) =>
   packetCount(state.items)
-export const selectTotalCents = (state: EstimateState) =>
-  totalCents(state.items)
+export const selectTotalMills = (state: EstimateState) =>
+  totalMills(state.items)

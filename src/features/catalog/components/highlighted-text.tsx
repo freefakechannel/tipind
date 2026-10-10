@@ -1,34 +1,45 @@
-import { normalizeText } from "@/lib/format"
+import { Fragment, type ReactNode } from "react"
 
-const TOKENS = /[\p{L}\p{N}]+|[^\p{L}\p{N}]+/gu
-const IS_WORD = /^[\p{L}\p{N}]/u
+import { findRanges } from "../lib/search"
+import type { SearchQuery } from "../types"
 
 interface HighlightedTextProps {
-  terms: readonly string[]
+  query: SearchQuery
   text: string
 }
 
-export function HighlightedText({ terms, text }: HighlightedTextProps) {
+/** Highlights exactly the matched letters, wherever they are in a word. */
+export function HighlightedText({ query, text }: HighlightedTextProps) {
   if (!text) return <>—</>
-  if (terms.length === 0) return <>{text}</>
 
-  const wanted = new Set(terms.map(normalizeText))
+  const ranges = findRanges(text, query)
+  if (ranges.length === 0) return <>{text}</>
 
-  return (
-    <>
-      {Array.from(text.matchAll(TOKENS), (token) => {
-        const part = token[0]
-        return IS_WORD.test(part) && wanted.has(normalizeText(part)) ? (
-          <mark
-            className="rounded-xs bg-warning-200 px-0.5 font-extrabold text-warning-950 dark:bg-warning-700/70 dark:text-warning-50"
-            key={token.index}
-          >
-            {part}
-          </mark>
-        ) : (
-          part
-        )
-      })}
-    </>
-  )
+  const parts: ReactNode[] = []
+  let cursor = 0
+  for (const [start, end] of ranges) {
+    if (start > cursor) {
+      parts.push(
+        <Fragment key={`t${cursor.toString()}`}>
+          {text.slice(cursor, start)}
+        </Fragment>
+      )
+    }
+    parts.push(
+      <mark
+        className="rounded-xs bg-warning-200 text-warning-950 dark:bg-warning-600/60 dark:text-warning-50"
+        key={`m${start.toString()}`}
+      >
+        {text.slice(start, end)}
+      </mark>
+    )
+    cursor = end
+  }
+  if (cursor < text.length) {
+    parts.push(
+      <Fragment key={`t${cursor.toString()}`}>{text.slice(cursor)}</Fragment>
+    )
+  }
+
+  return <>{parts}</>
 }

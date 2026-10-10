@@ -41,7 +41,7 @@ export function filterProducts(
 
   return products.filter((product) => {
     if (range) {
-      const price = product.priceCents
+      const price = product.priceMills
       if (price === null || price < range[0] || price > range[1]) return false
     }
     return (

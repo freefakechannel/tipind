@@ -29,12 +29,7 @@ export function CatalogExplorer({ catalogDataUrl }: CatalogExplorerProps) {
   const results = useCatalogResults()
 
   const productCount = dataset?.products.length ?? 0
-  const view = {
-    isIndexing: results.isIndexing,
-    productCount,
-    searchError: results.searchError,
-    status,
-  }
+  const view = { productCount, status }
   const statusView = getStatusView(view)
   const emptyView = getEmptyView(view)
 
@@ -105,12 +100,12 @@ export function CatalogExplorer({ catalogDataUrl }: CatalogExplorerProps) {
             </p>
           )}
 
-          <div id={RESULTS_ANCHOR_ID}>
+          <div className="@container" id={RESULTS_ANCHOR_ID}>
             {results.rows.length > 0 ? (
-              <CatalogTable rows={results.rows} />
+              <CatalogTable query={results.query} rows={results.rows} />
             ) : (
               <CatalogEmptyState
-                busy={status === "loading" || results.isIndexing}
+                busy={status === "loading"}
                 description={emptyView.description}
                 title={emptyView.title}
               />
@@ -120,9 +115,11 @@ export function CatalogExplorer({ catalogDataUrl }: CatalogExplorerProps) {
           <CatalogPagination results={results} />
         </Card>
 
-        <p className="mt-3 text-right text-[0.62rem] leading-5 text-muted-foreground sm:px-1 sm:text-xs">
-          {copy.sourceNote}
-        </p>
+        {copy.sourceNote && (
+          <p className="mt-3 text-right text-[0.62rem] leading-5 text-muted-foreground sm:px-1 sm:text-xs">
+            {copy.sourceNote}
+          </p>
+        )}
       </Container>
     </section>
   )

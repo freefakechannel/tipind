@@ -176,6 +176,10 @@
   --header-shadow-floating: 0 14px 38px rgb(15 23 42 / 14%);
   --elevation-soft: 0 16px 46px rgb(30 58 138 / 8%);
   --elevation-card: 0 5px 22px rgb(15 23 42 / 6%);
+
+  --estimate-width: 24rem; /* set by the resize handle */
+  --estimate-panel: min(max(var(--estimate-width), 20rem), 33.333vw);
+  --estimate-w: 0px;
 }
 
 .dark {
@@ -318,9 +322,70 @@
   --shadow-card: var(--elevation-card);
 }
 
-/* Theme switch: only the circular reveal is visible */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
+/* Estimate sidebar: on lg+ the page shrinks to make room for it. */
+@media (min-width: 64rem) {
+  html[data-estimate="open"] {
+    --estimate-w: var(--estimate-width);
+  }
+
+  body {
+    padding-right: var(--estimate-w);
+    transition: padding-right 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}
+
+@media (min-width: 64rem) {
+  html[data-estimate="open"] {
+    --estimate-w: var(--estimate-panel);
+  }
+
+  body {
+    padding-right: var(--estimate-w);
+    transition: padding-right 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* While dragging the handle, nothing may lag behind the pointer. */
+html[data-resizing] {
+  cursor: col-resize;
+  user-select: none;
+}
+html[data-resizing] * {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}
+
+/* Modern scrollbars: thin, translucent, theme-aware. */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 28%, transparent)
+      transparent;
+  }
+  html {
+    scrollbar-width: auto;
+  }
+
+  /* Theme switch: only the circular reveal is visible */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  ::selection {
+    background-color: yellow;
+    color: black;
+  }
 }

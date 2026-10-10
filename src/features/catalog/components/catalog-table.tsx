@@ -5,12 +5,12 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/content"
-import { formatCents, formatMessage } from "@/lib/format"
+import { formatMessage, formatMills } from "@/lib/format"
 import { productLineId, quantityOf } from "@/features/estimate/lib/line-items"
 import { useEstimateStore } from "@/features/estimate/store/estimate-store"
+import type { CatalogProduct, SearchQuery } from "../types"
 
-import { excerpt, termsForField } from "../lib/search"
-import type { CatalogEntry, CatalogProduct } from "../types"
+import { excerpt } from "../lib/search"
 import { HighlightedText } from "./highlighted-text"
 
 const th =
@@ -60,15 +60,21 @@ function AddToEstimateButton({
   )
 }
 
-function Price({ cents }: { cents: number | null }) {
-  return <>{cents === null ? "—" : formatCents(cents)}</>
+function Price({ mills }: { mills: number | null }) {
+  return <>{mills === null ? "—" : formatMills(mills)}</>
 }
 
 interface CatalogTableProps {
-  rows: readonly CatalogEntry[]
+  rows: readonly CatalogProduct[]
+  query: SearchQuery
 }
 
-export function CatalogTable({ rows }: CatalogTableProps) {
+/**
+ * Cards or table depending on the width of the results area (container
+ * query), so it adapts when the estimate sidebar is open.
+ * The parent must have the `@container` class.
+ */
+export function CatalogTable({ rows, query }: CatalogTableProps) {
   const copy = siteContent.catalog
   const [announcement, setAnnouncement] = useState("")
 
@@ -84,46 +90,33 @@ export function CatalogTable({ rows }: CatalogTableProps) {
         {announcement}
       </p>
 
-      {/* Cards below lg */}
-      <ul className="divide-y divide-border/70 lg:hidden">
-        {rows.map(({ matches, product }) => (
+      <ul className="divide-y divide-border/70 @4xl:hidden">
+        {rows.map((product) => (
           <li className="space-y-2 px-5 py-4 sm:px-7" key={product.id}>
             <div className="flex items-start justify-between gap-3">
               <h4 className="m-0 min-w-0 text-sm font-bold text-primary-900 dark:text-primary-100">
-                <HighlightedText
-                  terms={termsForField(matches, "name")}
-                  text={product.name}
-                />
+                <HighlightedText query={query} text={product.name} />
               </h4>
               <AddToEstimateButton onAdded={handleAdded} product={product} />
             </div>
             <p className="m-0 line-clamp-2 text-[0.7rem] leading-5 text-muted-foreground">
               <HighlightedText
-                terms={termsForField(matches, "ingredient")}
-                text={excerpt(
-                  product.ingredient,
-                  termsForField(matches, "ingredient")
-                )}
+                query={query}
+                text={excerpt(product.ingredient, query)}
               />
             </p>
             <div className="flex flex-wrap items-center justify-between gap-2 text-[0.68rem] font-semibold text-neutral-600 dark:text-neutral-300">
               <span className="min-w-0">
-                <HighlightedText
-                  terms={termsForField(matches, "manufacturer")}
-                  text={product.manufacturer}
-                />
+                <HighlightedText query={query} text={product.manufacturer} />
               </span>
               <span className="inline-flex items-center gap-2">
                 {product.packaging && (
                   <span className="rounded-md border border-primary-100 bg-primary-50 px-2 py-0.5 text-[0.62rem] font-bold dark:border-primary-900 dark:bg-primary-950/70 dark:text-primary-200">
-                    <HighlightedText
-                      terms={termsForField(matches, "packaging")}
-                      text={product.packaging}
-                    />
+                    <HighlightedText query={query} text={product.packaging} />
                   </span>
                 )}
                 <span className="text-sm font-extrabold text-primary-text tabular-nums">
-                  <Price cents={product.priceCents} />
+                  <Price mills={product.priceMills} />
                 </span>
               </span>
             </div>
@@ -131,10 +124,9 @@ export function CatalogTable({ rows }: CatalogTableProps) {
         ))}
       </ul>
 
-      {/* Table from lg */}
       <div
         aria-label={copy.tableRegionLabel}
-        className="hidden overflow-x-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring lg:block"
+        className="hidden overflow-x-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring @4xl:block"
         role="region"
         tabIndex={0}
       >
@@ -144,7 +136,7 @@ export function CatalogTable({ rows }: CatalogTableProps) {
               <th className={`${th} w-[23%]`} scope="col">
                 {copy.tableHeadings.product}
               </th>
-              <th className={`${th} w-[32%]`} scope="col">
+              <th className={`${th} w-[30%]`} scope="col">
                 {copy.tableHeadings.ingredient}
               </th>
               <th className={`${th} w-[20%]`} scope="col">
@@ -153,7 +145,7 @@ export function CatalogTable({ rows }: CatalogTableProps) {
               <th className={`${th} w-30`} scope="col">
                 {copy.tableHeadings.packaging}
               </th>
-              <th className={`${th} pr-7 text-right`} scope="col">
+              <th className={`${th} text-right`} scope="col">
                 {copy.tableHeadings.rate}
               </th>
               <th className={`${th} pr-7 text-right`} scope="col">
@@ -162,56 +154,46 @@ export function CatalogTable({ rows }: CatalogTableProps) {
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ matches, product }) => {
-              const ingredientTerms = termsForField(matches, "ingredient")
-              return (
-                <tr
-                  className="border-b border-border/70 transition-colors last:border-0 hover:bg-primary-50/60 dark:hover:bg-primary-950/30"
-                  key={product.id}
+            {rows.map((product) => (
+              <tr
+                className="border-b border-border/70 transition-colors last:border-0 hover:bg-primary-50/60 dark:hover:bg-primary-950/30"
+                key={product.id}
+              >
+                <td className="px-4 py-3.5 text-xs font-bold text-primary-900 dark:text-primary-100">
+                  <HighlightedText query={query} text={product.name} />
+                </td>
+                <td
+                  className="max-w-90 px-4 py-3.5 text-[0.68rem] leading-5 font-semibold text-neutral-600 dark:text-neutral-300"
+                  title={product.ingredient}
                 >
-                  <td className="px-4 py-3.5 text-xs font-bold text-primary-900 dark:text-primary-100">
+                  <span className="line-clamp-2">
                     <HighlightedText
-                      terms={termsForField(matches, "name")}
-                      text={product.name}
+                      query={query}
+                      text={excerpt(product.ingredient, query)}
                     />
-                  </td>
-                  <td
-                    className="max-w-90 px-4 py-3.5 text-[0.68rem] leading-5 font-semibold text-neutral-600 dark:text-neutral-300"
-                    title={product.ingredient}
-                  >
-                    <span className="line-clamp-2">
-                      <HighlightedText
-                        terms={ingredientTerms}
-                        text={excerpt(product.ingredient, ingredientTerms)}
-                      />
-                    </span>
-                  </td>
-                  <td className="max-w-55 px-4 py-3.5 text-[0.68rem] leading-5 font-semibold text-neutral-600 dark:text-neutral-300">
-                    <HighlightedText
-                      terms={termsForField(matches, "manufacturer")}
-                      text={product.manufacturer}
-                    />
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="inline-flex min-h-6 items-center rounded-md border border-primary-100 bg-primary-50 px-2 text-[0.62rem] font-bold whitespace-nowrap text-neutral-600 dark:border-primary-900 dark:bg-primary-950/70 dark:text-primary-200">
-                      <HighlightedText
-                        terms={termsForField(matches, "packaging")}
-                        text={product.packaging}
-                      />
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-7 text-right text-xs font-extrabold whitespace-nowrap text-primary-text tabular-nums">
-                    <Price cents={product.priceCents} />
-                  </td>
-                  <td className="py-3.5 pr-7 text-right text-xs font-extrabold whitespace-nowrap text-primary-text tabular-nums">
+                  </span>
+                </td>
+                <td className="max-w-55 px-4 py-3.5 text-[0.68rem] leading-5 font-semibold text-neutral-600 dark:text-neutral-300">
+                  <HighlightedText query={query} text={product.manufacturer} />
+                </td>
+                <td className="px-4 py-3.5">
+                  <span className="inline-flex min-h-6 items-center rounded-md border border-primary-100 bg-primary-50 px-2 text-[0.62rem] font-bold whitespace-nowrap text-neutral-600 dark:border-primary-900 dark:bg-primary-950/70 dark:text-primary-200">
+                    <HighlightedText query={query} text={product.packaging} />
+                  </span>
+                </td>
+                <td className="px-4 py-3.5 text-right text-xs font-extrabold whitespace-nowrap text-primary-text tabular-nums">
+                  <Price mills={product.priceMills} />
+                </td>
+                <td className="py-3.5 pr-7">
+                  <div className="flex justify-end">
                     <AddToEstimateButton
                       onAdded={handleAdded}
                       product={product}
                     />
-                  </td>
-                </tr>
-              )
-            })}
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

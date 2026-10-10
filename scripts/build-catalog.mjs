@@ -5,10 +5,11 @@
  *   node scripts/build-catalog.mjs -i public/data/source.json --clean --write-env
  *
  * Output: <output>/catalog.<hash>.dat = MAGIC + XOR(gzip(JSON))
- * JSON:   { format: 3, priceBounds: [minCents, maxCents], manufacturers: string[],
+ * JSON:   { format: 4, priceBounds: [minMills, maxMills], manufacturers: string[],
  *           packaging: string[],
- *           products: [name, ingredient, manufacturerIdx, packagingIdx, priceCents][] }
- * Missing index/price is -1. Keep these constants in sync with
+ *           products: [name, ingredient, manufacturerIdx, packagingIdx, priceMills][] }
+ * A mill is 1/1000 USD, so "$0.665" is stored as 665 (3 decimals, exact).
+ * Missing index/price is -1. Keep FORMAT/MAGIC in sync with
  * src/features/catalog/constants.ts.
  */
 import { createHash } from "node:crypto"
@@ -21,10 +22,10 @@ import { gzipSync } from "node:zlib"
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const KEY_NAME = "NEXT_PUBLIC_CATALOG_XOR_KEY"
 const URL_NAME = "NEXT_PUBLIC_CATALOG_DATA_URL"
-const FORMAT = 3
-const MAGIC = Buffer.from("PCTCAT3:", "ascii")
+const FORMAT = 4
+const MAGIC = Buffer.from("TIPCAT4:", "ascii")
 const NONE = -1
-const MAX_UNIT_PRICE_CENTS = 10_000_000
+const MAX_UNIT_PRICE_MILLS = 100_000_000
 
 const ALIASES = {
   name: [
@@ -77,18 +78,21 @@ function text(value) {
   return String(value).normalize("NFC").replace(/\s+/g, " ").trim()
 }
 
-/** "$2.831" -> 283 (rounded half up, exact decimal arithmetic). */
-function parseCents(value) {
+/** "$2.831" -> 2831 (exact; digits past the 3rd decimal are rounded half up). */
+function parseMills(value) {
   const cleaned = text(value)
     .replace(/^\$\s*/, "")
     .replace(/,/g, "")
   const match = /^(\d{1,9})(?:\.(\d+))?$/.exec(cleaned)
   if (!match) return NONE
-  const fraction = (match[2] ?? "").padEnd(3, "0")
-  let cents = Number(match[1]) * 100 + Number(fraction.slice(0, 2))
-  if (Number(fraction[2]) >= 5) cents += 1
-  return cents <= MAX_UNIT_PRICE_CENTS ? cents : NONE
+  const fraction = (match[2] ?? "").padEnd(4, "0")
+  let mills = Number(match[1]) * 1000 + Number(fraction.slice(0, 3))
+  if (Number(fraction[3]) >= 5) mills += 1
+  return mills <= MAX_UNIT_PRICE_MILLS ? mills : NONE
 }
+
+/** True when the source has non-zero digits beyond 3 decimals (they get rounded). */
+const losesPrecision = (value) => /\.\d{3}\d*[1-9]/.test(text(value))
 
 function rowsFrom(json) {
   if (Array.isArray(json)) return json
@@ -116,12 +120,14 @@ function readRow(row) {
 
   const name = pick(ALIASES.name)
   if (!name) return null
+  const price = pick(ALIASES.price)
   return {
     name,
     ingredient: pick(ALIASES.ingredient),
     manufacturer: pick(ALIASES.manufacturer),
     packaging: pick(ALIASES.packaging),
-    cents: parseCents(pick(ALIASES.price)),
+    mills: parseMills(price),
+    lossy: losesPrecision(price),
   }
 }
 
@@ -156,7 +162,7 @@ function build(json) {
       row.ingredient,
       row.manufacturer,
       row.packaging,
-      row.cents,
+      row.mills,
     ]
       .map((v) => key(String(v)))
       .join("|")
@@ -176,7 +182,7 @@ function build(json) {
 
   const manufacturers = dictionary(rows.map((row) => row.manufacturer))
   const packaging = dictionary(rows.map((row) => row.packaging))
-  const prices = rows.map((row) => row.cents).filter((cents) => cents !== NONE)
+  const prices = rows.map((row) => row.mills).filter((mills) => mills !== NONE)
   const min = prices.length > 0 ? Math.min(...prices) : 0
   const max = prices.length > 0 ? Math.max(...prices) : 100_000
 
@@ -185,6 +191,7 @@ function build(json) {
       duplicates,
       invalid,
       noPrice: rows.length - prices.length,
+      rounded: rows.filter((row) => row.lossy).length,
       source: source.length,
     },
     artifact: {
@@ -197,7 +204,7 @@ function build(json) {
         row.ingredient,
         manufacturers.indexOf(row.manufacturer),
         packaging.indexOf(row.packaging),
-        row.cents,
+        row.mills,
       ]),
     },
   }
@@ -285,7 +292,7 @@ async function main() {
   const dataUrl = `/${path.relative(path.join(ROOT, "public"), path.join(outputDir, fileName)).split(path.sep).join("/")}`
   if (values["write-env"]) {
     await updateEnv(path.join(ROOT, ".env.production"), URL_NAME, dataUrl)
-    console.log(`Updated .env.production`)
+    console.log("Updated .env.production")
   }
 
   console.log(`Wrote ${fileName} (${payload.length.toLocaleString()} bytes)`)
@@ -299,10 +306,13 @@ async function main() {
     `Without a usable price: ${stats.noPrice.toLocaleString()} (shown, but can't be added to an estimate)`
   )
   console.log(
+    `Prices rounded to 3 decimals (source had more): ${stats.rounded.toLocaleString()}`
+  )
+  console.log(
     `Manufacturers: ${artifact.manufacturers.length.toLocaleString()}, packaging options: ${artifact.packaging.length.toLocaleString()}`
   )
   console.log(
-    `Price range: ${(artifact.priceBounds[0] / 100).toFixed(2)}–${(artifact.priceBounds[1] / 100).toFixed(2)} USD`
+    `Price range: $${(artifact.priceBounds[0] / 1000).toFixed(3)} to $${(artifact.priceBounds[1] / 1000).toFixed(3)}`
   )
   if (!values["write-env"]) console.log(`Set ${URL_NAME}=${dataUrl}`)
 }

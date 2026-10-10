@@ -1,11 +1,14 @@
-const currency = new Intl.NumberFormat("en-US", {
+const price = new Intl.NumberFormat("en-US", {
   currency: "USD",
+  maximumFractionDigits: 3,
+  minimumFractionDigits: 3,
   style: "currency",
 })
 const integer = new Intl.NumberFormat("en-US")
 
-export function formatCents(cents: number) {
-  return currency.format(cents / 100)
+/** A mill is 1/1000 of a dollar. Prices are stored as whole mills. */
+export function formatMills(mills: number) {
+  return price.format(mills / 1000)
 }
 
 export function formatNumber(value: number) {
@@ -27,10 +30,15 @@ export function formatMessage(
   )
 }
 
-/** Lowercases and strips diacritics, for searching and de-duplication. */
+/** Lowercases and strips diacritics. */
 export function normalizeText(value: string) {
   return value
     .toLocaleLowerCase()
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
+}
+
+/** Normalized text with every space and symbol removed ("A. S Life" -> "aslife"). */
+export function compactText(value: string) {
+  return normalizeText(value).replace(/[^\p{L}\p{N}]/gu, "")
 }

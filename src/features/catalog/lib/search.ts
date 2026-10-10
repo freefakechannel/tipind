@@ -1,88 +1,195 @@
-import type MiniSearch from "minisearch"
-import type { SearchOptions } from "minisearch"
+import type { CatalogProduct, SearchQuery } from "../types"
 
-import { normalizeText } from "@/lib/format"
+const WORD_CHAR = /[\p{L}\p{N}]/u
+const WORDS = /[\p{L}\p{N}]+/gu
 
-import type { CatalogProduct, MatchInfo } from "../types"
+/** Column order: name, ingredient, manufacturer, packaging. */
+const FIELD_WEIGHTS = [4, 3, 2, 1] as const
+/** Quality (whole word / word start / inside a word) outranks the column. */
+const QUALITY_UNIT = 10
+const COMPACT_SCORE = 5
 
-const FIELDS = ["name", "ingredient", "manufacturer", "packaging"]
-
-const SEARCH_OPTIONS: SearchOptions = {
-  boost: { name: 3, ingredient: 2, manufacturer: 1.5 },
-  combineWith: "AND",
-  fuzzy: 0.2,
-  prefix: true,
+interface Folded {
+  text: string
+  /** For each character of `text`, where it starts/ends in the original. */
+  starts: number[]
+  ends: number[]
 }
 
-type Index = MiniSearch<CatalogProduct>
+/**
+ * Lowercases and strips accents one character at a time, so positions in the
+ * folded text can be mapped back to the original (for highlighting).
+ * With `compact`, everything except letters and digits is dropped.
+ */
+function fold(source: string, compact = false): Folded {
+  let text = ""
+  const starts: number[] = []
+  const ends: number[] = []
+  let offset = 0
 
-const cache = new WeakMap<readonly CatalogProduct[], Promise<Index>>()
+  for (const char of source) {
+    const end = offset + char.length
+    const folded = char
+      .toLocaleLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
 
-async function buildIndex(products: readonly CatalogProduct[]) {
-  const { default: Engine } = await import("minisearch")
-  const index = new Engine<CatalogProduct>({
-    fields: FIELDS,
-    idField: "id",
-    processTerm: normalizeText,
-    searchOptions: SEARCH_OPTIONS,
-  })
-  await index.addAllAsync(products, { chunkSize: 250 })
+    for (const piece of folded) {
+      if (compact && !WORD_CHAR.test(piece)) continue
+      for (const _unit of piece) {
+        starts.push(offset)
+        ends.push(end)
+      }
+      text += piece
+    }
+    offset = end
+  }
+
+  return { ends, starts, text }
+}
+
+export const EMPTY_QUERY: SearchQuery = { compact: "", terms: [] }
+
+export function parseQuery(raw: string): SearchQuery {
+  const terms = [...new Set(fold(raw).text.match(WORDS) ?? [])]
+  return { compact: terms.length > 1 ? terms.join("") : "", terms }
+}
+
+interface IndexedRow {
+  readonly product: CatalogProduct
+  readonly folded: readonly string[]
+  readonly compact: readonly string[]
+}
+
+function toRow(product: CatalogProduct): IndexedRow {
+  const fields = [
+    product.name,
+    product.ingredient,
+    product.manufacturer,
+    product.packaging,
+  ]
+  return {
+    compact: fields.map((field) => fold(field, true).text),
+    folded: fields.map((field) => fold(field).text),
+    product,
+  }
+}
+
+const indexes = new WeakMap<readonly CatalogProduct[], IndexedRow[]>()
+
+function indexFor(products: readonly CatalogProduct[]) {
+  let index = indexes.get(products)
+  if (!index) {
+    index = products.map(toRow)
+    indexes.set(products, index)
+  }
   return index
 }
 
-/** Builds the index once per dataset; the engine is code-split. */
-export function loadSearchIndex(products: readonly CatalogProduct[]) {
-  let pending = cache.get(products)
-  if (!pending) {
-    pending = buildIndex(products).catch((error: unknown) => {
-      cache.delete(products)
-      throw error
-    })
-    cache.set(products, pending)
+/** 3 = whole word, 2 = start of a word, 1 = inside a word, 0 = absent. */
+function quality(text: string, term: string) {
+  let best = 0
+  let from = 0
+
+  for (;;) {
+    const at = text.indexOf(term, from)
+    if (at < 0) return best
+
+    const startsWord = at === 0 || !WORD_CHAR.test(text.charAt(at - 1))
+    const after = at + term.length
+    const endsWord = after >= text.length || !WORD_CHAR.test(text.charAt(after))
+    const found = startsWord ? (endsWord ? 3 : 2) : 1
+
+    if (found === 3) return 3
+    best = Math.max(best, found)
+    from = at + 1
   }
-  return pending
 }
 
-export interface SearchOutcome {
-  readonly products: readonly CatalogProduct[]
-  readonly matches: ReadonlyMap<number, MatchInfo>
-}
+/**
+ * Every word must appear (as a substring) in some column. Best matches first:
+ * whole words, then word starts, then partial matches; ties go to the more
+ * important column (name > ingredient > manufacturer > pack).
+ * A multi-word query also matches with its spaces removed, so "as life"
+ * finds "A. S Lifesciences".
+ */
+export function searchProducts(
+  products: readonly CatalogProduct[],
+  query: SearchQuery
+): CatalogProduct[] {
+  const hits: { product: CatalogProduct; score: number }[] = []
 
-export function runSearch(
-  index: Index,
-  query: string,
-  products: readonly CatalogProduct[]
-): SearchOutcome {
-  const found: CatalogProduct[] = []
-  const matches = new Map<number, MatchInfo>()
+  for (const row of indexFor(products)) {
+    let score = 0
+    let matched = true
 
-  for (const result of index.search(query)) {
-    const product = products.at(Number(result.id))
-    if (!product) continue
-    found.push(product)
-    matches.set(product.id, result.match)
+    for (const term of query.terms) {
+      let best = 0
+      for (const [column, text] of row.folded.entries()) {
+        const found = quality(text, term)
+        if (found === 0) continue
+        const weight = FIELD_WEIGHTS.at(column) ?? 0
+        best = Math.max(best, found * QUALITY_UNIT + weight)
+      }
+      if (best === 0) {
+        matched = false
+        break
+      }
+      score += best
+    }
+
+    if (!matched && query.compact) {
+      matched = row.compact.some((text) => text.includes(query.compact))
+      score = COMPACT_SCORE
+    }
+
+    if (matched) hits.push({ product: row.product, score })
   }
 
-  return { products: found, matches }
+  hits.sort((a, b) => b.score - a.score || a.product.id - b.product.id)
+  return hits.map((hit) => hit.product)
 }
 
-export function termsForField(matches: MatchInfo, field: string) {
-  return Object.entries(matches)
-    .filter(([, fields]) => fields.includes(field))
-    .map(([term]) => term)
+type Range = [start: number, end: number]
+
+function collect(folded: Folded, needle: string, into: Range[]) {
+  if (!needle) return
+  let from = 0
+  for (;;) {
+    const at = folded.text.indexOf(needle, from)
+    if (at < 0) return
+    const start = folded.starts.at(at)
+    const end = folded.ends.at(at + needle.length - 1)
+    if (start !== undefined && end !== undefined) into.push([start, end])
+    from = at + needle.length
+  }
+}
+
+/** Character ranges of `text` that match the query (merged, sorted). */
+export function findRanges(text: string, query: SearchQuery): Range[] {
+  if (!text || query.terms.length === 0) return []
+
+  const ranges: Range[] = []
+  const plain = fold(text)
+  for (const term of query.terms) collect(plain, term, ranges)
+  if (query.compact) collect(fold(text, true), query.compact, ranges)
+
+  ranges.sort((a, b) => a[0] - b[0] || a[1] - b[1])
+  const merged: Range[] = []
+  for (const range of ranges) {
+    const last = merged.at(-1)
+    if (last && range[0] <= last[1]) last[1] = Math.max(last[1], range[1])
+    else merged.push([range[0], range[1]])
+  }
+  return merged
 }
 
 /** Shortens long text, keeping the first match visible when there is one. */
-export function excerpt(text: string, terms: readonly string[], max = 112) {
+export function excerpt(text: string, query: SearchQuery, max = 112) {
   const value = text.trim()
   if (value.length <= max) return value
 
-  const haystack = normalizeText(value)
-  const hits = terms
-    .map((term) => haystack.indexOf(normalizeText(term)))
-    .filter((position) => position >= 0)
-  const hit = hits.length > 0 ? Math.min(...hits) : -1
-
+  const hit = findRanges(value, query).at(0)?.[0] ?? -1
   const start = hit >= max - 16 ? Math.max(0, hit - 36) : 0
   const end = start + max
   let slice = value.slice(start, end)

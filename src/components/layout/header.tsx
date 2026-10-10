@@ -181,7 +181,7 @@ export function SiteHeader() {
 
       <motion.div
         aria-hidden="true"
-        className="fixed inset-x-0 top-0 z-60 h-0.75 origin-left bg-linear-to-r from-primary to-highlight-300"
+        className="fixed top-0 right-(--estimate-w) left-0 z-60 h-0.75 origin-left bg-linear-to-r from-primary to-highlight-300 transition-[right] duration-300 ease-out motion-reduce:transition-none"
         style={{ scaleX: reduceMotion ? scrollYProgress : barSpring }}
       />
 
@@ -189,7 +189,7 @@ export function SiteHeader() {
       <div aria-hidden="true" className="h-26 md:h-18" />
 
       <motion.div
-        className="pointer-events-none fixed inset-x-0 top-0 z-50 [--float-gap:0px] [--float-gutter:0px] [--float-radius:0px] md:[--float-gap:10px] md:[--float-gutter:1rem] md:[--float-radius:24px]"
+        className="pointer-events-none fixed top-0 right-(--estimate-w) left-0 z-50 transition-[right] duration-300 ease-out [--float-gap:0px] [--float-gutter:0px] [--float-radius:0px] motion-reduce:transition-none md:[--float-gap:10px] md:[--float-gutter:1rem] md:[--float-radius:24px]"
         style={{ y }}
       >
         <motion.div className="relative" style={{ y: gapY }}>

@@ -36,7 +36,7 @@ const glyphVariants: Variants = {
 
 const tileTheme = {
   default:
-    "border-blue-200/80 bg-linear-to-br from-blue-50 to-blue-100 text-primary-text shadow-blue-950/5 dark:border-blue-900 dark:from-blue-950 dark:to-slate-900 dark:text-blue-300",
+    "border-primary-200/80 bg-linear-to-br from-primary-50 to-primary-100 text-primary-text shadow-primary-950/5 dark:border-primary-900 dark:from-primary-950 dark:to-neutral-900",
   footer: "border-footer-border bg-footer-card text-footer-accent",
 } as const
 
@@ -78,7 +78,7 @@ export function BrandLogo({ className, footer = false }: BrandProps) {
       <span
         className={cn(
           "truncate font-display text-lg leading-none font-extrabold tracking-[-0.055em] md:text-xl",
-          footer ? "text-footer-foreground" : "text-ink dark:text-foreground"
+          footer ? "text-footer-foreground" : "text-ink"
         )}
       >
         {siteConfig.name.toUpperCase()}

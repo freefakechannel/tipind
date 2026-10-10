@@ -2,21 +2,12 @@ import { isRecord } from "@/lib/guards"
 
 import {
   MAX_LINE_ITEMS,
-  MAX_TEXT_LENGTH,
-  MAX_UNIT_PRICE_CENTS,
+  MAX_UNIT_PRICE_MILLS,
   STORAGE_KEY,
   STORAGE_VERSION,
 } from "../constants"
 import type { EstimateLineItem } from "../types"
-import { clampQuantity, lineItemId } from "./line-items"
-
-function isText(value: unknown, required = false): value is string {
-  return (
-    typeof value === "string" &&
-    value.length <= MAX_TEXT_LENGTH &&
-    (!required || value.trim().length > 0)
-  )
-}
+import { clampQuantity, clip, lineItemId } from "./line-items"
 
 function readItem(candidate: unknown): EstimateLineItem | null {
   if (!isRecord(candidate)) return null
@@ -26,18 +17,19 @@ function readItem(candidate: unknown): EstimateLineItem | null {
     name,
     packaging,
     quantity,
-    unitPriceCents,
+    unitPriceMills,
   } = candidate
 
   if (
-    !isText(name, true) ||
-    !isText(ingredient) ||
-    !isText(manufacturer) ||
-    !isText(packaging) ||
-    typeof unitPriceCents !== "number" ||
-    !Number.isSafeInteger(unitPriceCents) ||
-    unitPriceCents < 0 ||
-    unitPriceCents > MAX_UNIT_PRICE_CENTS ||
+    typeof name !== "string" ||
+    !name.trim() ||
+    typeof ingredient !== "string" ||
+    typeof manufacturer !== "string" ||
+    typeof packaging !== "string" ||
+    typeof unitPriceMills !== "number" ||
+    !Number.isSafeInteger(unitPriceMills) ||
+    unitPriceMills < 0 ||
+    unitPriceMills > MAX_UNIT_PRICE_MILLS ||
     typeof quantity !== "number" ||
     !Number.isFinite(quantity)
   ) {
@@ -45,11 +37,11 @@ function readItem(candidate: unknown): EstimateLineItem | null {
   }
 
   const details = {
-    ingredient: ingredient.trim(),
-    manufacturer: manufacturer.trim(),
-    name: name.trim(),
-    packaging: packaging.trim(),
-    unitPriceCents,
+    ingredient: clip(ingredient),
+    manufacturer: clip(manufacturer),
+    name: clip(name),
+    packaging: clip(packaging),
+    unitPriceMills,
   }
   // Never trust a stored id; derive it again.
   return {
@@ -91,7 +83,7 @@ export function serializeItems(items: readonly EstimateLineItem[]) {
 }
 
 export function parseItems(raw: string | null): EstimateLineItem[] {
-  if (!raw || raw.length > 1_000_000) return []
+  if (!raw || raw.length > 2_000_000) return []
   try {
     const parsed: unknown = JSON.parse(raw)
     if (!isRecord(parsed) || parsed.version !== STORAGE_VERSION) return []

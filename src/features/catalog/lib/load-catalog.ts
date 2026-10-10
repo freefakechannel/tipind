@@ -20,7 +20,7 @@ function readStrings(value: unknown, label: string): string[] {
 
 function readBounds(value: unknown): PriceRange {
   if (!Array.isArray(value)) throw corrupt("price bounds")
-  const [min, max]: number[] = value as [number, number]
+  const [min, max]: number[] = value as number[]
   if (
     typeof min !== "number" ||
     typeof max !== "number" ||
@@ -50,8 +50,9 @@ function readProduct(
   manufacturers: readonly string[],
   packaging: readonly string[]
 ): CatalogProduct {
-  if (!Array.isArray(row) || row.length !== 5)
+  if (!Array.isArray(row) || row.length !== 5) {
     throw corrupt(`row ${id.toString()}`)
+  }
   const cells: unknown[] = row
   const [name, ingredient, manufacturerIndex, packagingIndex, price] = cells
 
@@ -71,13 +72,15 @@ function readProduct(
     ingredient,
     manufacturer: lookup(manufacturers, manufacturerIndex, "manufacturers"),
     packaging: lookup(packaging, packagingIndex, "packaging"),
-    priceCents: price === NO_VALUE ? null : price,
+    priceMills: price === NO_VALUE ? null : price,
   }
 }
 
 export function parseCatalog(value: unknown): CatalogDataset {
   if (!isRecord(value) || value.format !== CATALOG_FORMAT) {
-    throw new Error("The catalog file has an unsupported format version.")
+    throw new Error(
+      "The catalog file has an unsupported format version. Rebuild it with `bun run catalog:build`."
+    )
   }
 
   const manufacturers = readStrings(value.manufacturers, "manufacturers")
@@ -141,8 +144,7 @@ export async function fetchCatalog(
   } catch (error) {
     if (signal?.aborted) throw error
     throw new Error(
-      "The catalog could not be downloaded. Check your connection and try again.",
-      { cause: error }
+      "The catalog could not be downloaded. Check your connection and try again."
     )
   }
   if (!response.ok) {

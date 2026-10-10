@@ -1,27 +1,20 @@
 import { siteContent } from "@/config/content"
-import { formatNumber, formatMessage } from "@/lib/format"
+import { formatMessage, formatNumber } from "@/lib/format"
 
 import type { CatalogLoadStatus } from "../types"
 
 export type StatusTone = "success" | "busy" | "error" | "muted"
 
 interface StatusInput {
-  isIndexing: boolean
   productCount: number
-  searchError: string
   status: CatalogLoadStatus
 }
 
-export function getStatusView({
-  isIndexing,
-  productCount,
-  searchError,
-  status,
-}: StatusInput): { tone: StatusTone; message: string } {
+export function getStatusView({ productCount, status }: StatusInput): {
+  tone: StatusTone
+  message: string
+} {
   const copy = siteContent.catalog.status
-
-  if (searchError) return { tone: "error", message: copy.searchError }
-  if (isIndexing) return { tone: "busy", message: copy.indexing }
 
   switch (status) {
     case "unconfigured":
@@ -40,19 +33,12 @@ export function getStatusView({
   }
 }
 
-export function getEmptyView({
-  isIndexing,
-  productCount,
-  searchError,
-  status,
-}: StatusInput) {
+export function getEmptyView({ productCount, status }: StatusInput) {
   const copy = siteContent.catalog
 
-  if (searchError)
-    return { title: copy.status.searchError, description: searchError }
-  if (isIndexing) return { title: copy.status.indexing, description: "" }
-  if (status === "loading")
+  if (status === "loading") {
     return { title: copy.status.loading, description: "" }
+  }
   if (status === "unconfigured") {
     return {
       title: copy.noCatalogRecordsTitle,

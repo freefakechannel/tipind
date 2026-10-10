@@ -139,6 +139,36 @@ export interface SiteContent {
     packLabel: string
     packetCountLabel: string
     copyAction: string
+    pdfAction: string
+    pdfBuilding: string
+    pdfFailure: string
+    pdfPreviewTitle: string
+    pdfPreviewDescription: string
+    pdfPreviewLabel: string
+    pdfDownloadAction: string
+    pdfDiscardAction: string
+    pdfOpenInTab: string
+    resizeAriaLabel: string
+    pdf: {
+      documentTitle: string
+      statusValue: string
+      referenceLabel: string
+      dateLabel: string
+      statusLabel: string
+      indexColumn: string
+      productColumn: string
+      packColumn: string
+      quantityColumn: string
+      unitColumn: string
+      totalColumn: string
+      productsLabel: string
+      packetsLabel: string
+      totalLabel: string
+      notesTitle: string
+      noteEstimate: string
+      notePrices: string
+      pageLabel: string
+    }
     copiedMessage: string
     copyFailureMessage: string
     loadingMessage: string

@@ -4,10 +4,10 @@ import { Minus, Plus, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/content"
-import { formatCents, formatMessage, formatNumber } from "@/lib/format"
+import { formatMessage, formatMills, formatNumber } from "@/lib/format"
 
 import { MAX_QUANTITY } from "../constants"
-import { lineTotalCents } from "../lib/line-items"
+import { lineTotalMills } from "../lib/line-items"
 import { useEstimateStore } from "../store/estimate-store"
 import type { EstimateLineItem } from "../types"
 
@@ -68,6 +68,7 @@ function QuantityStepper({ item }: { item: EstimateLineItem }) {
   )
 }
 
+/** Must render inside an `@container` (the sidebar provides one). */
 export function EstimateLineCard({ item }: { item: EstimateLineItem }) {
   const copy = siteContent.estimate
   const removeItem = useEstimateStore((state) => state.actions.removeItem)
@@ -80,7 +81,7 @@ export function EstimateLineCard({ item }: { item: EstimateLineItem }) {
     .join(" · ")
 
   return (
-    <article className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:p-5">
+    <article className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="m-0 text-base font-extrabold wrap-break-word text-ink">
@@ -112,18 +113,18 @@ export function EstimateLineCard({ item }: { item: EstimateLineItem }) {
         </Button>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 items-end gap-4 border-t border-border/70 pt-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+      <div className="mt-4 grid grid-cols-2 items-end gap-4 border-t border-border/70 pt-4 @md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
         <div>
           <span className={label}>{copy.singlePacketPriceLabel}</span>
           <span className="text-sm font-bold text-ink-soft tabular-nums">
-            {formatCents(item.unitPriceCents)}
+            {formatMills(item.unitPriceMills)}
           </span>
         </div>
         <QuantityStepper item={item} />
-        <div className="col-span-2 text-right sm:col-span-1">
+        <div className="col-span-2 text-right @md:col-span-1">
           <span className={label}>{copy.lineTotalLabel}</span>
           <span className="text-lg font-extrabold text-primary-text tabular-nums">
-            {formatCents(lineTotalCents(item))}
+            {formatMills(lineTotalMills(item))}
           </span>
         </div>
       </div>

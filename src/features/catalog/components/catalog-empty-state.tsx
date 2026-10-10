@@ -1,8 +1,4 @@
-import { Download, LoaderCircle, Search } from "lucide-react"
-
-import { ButtonLink } from "@/components/ui/button"
-import { siteContent } from "@/config/content"
-import { siteConfig } from "@/config/site"
+import { LoaderCircle, Search } from "lucide-react"
 
 interface CatalogEmptyStateProps {
   busy: boolean
@@ -31,22 +27,9 @@ export function CatalogEmptyState({
         {title}
       </h4>
       {description && (
-        <p className="mt-1 mb-4 max-w-sm text-xs leading-5 text-muted-foreground">
+        <p className="mt-1 max-w-sm text-xs leading-5 text-muted-foreground">
           {description}
         </p>
-      )}
-      {siteConfig.catalog.pdfUrl && (
-        <ButtonLink
-          className="mt-3 min-h-9 text-xs"
-          href={siteConfig.catalog.pdfUrl}
-          rel="noreferrer"
-          size="sm"
-          target="_blank"
-          variant="outline"
-        >
-          <Download aria-hidden="true" />
-          {siteContent.catalog.openCatalogAction}
-        </ButtonLink>
       )}
     </div>
   )

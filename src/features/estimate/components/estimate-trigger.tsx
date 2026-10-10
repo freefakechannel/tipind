@@ -6,22 +6,25 @@ import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/content"
 import { cn } from "@/lib/utils"
 
+import { SIDEBAR_ID } from "../constants"
 import { selectPacketCount, useEstimateStore } from "../store/estimate-store"
 
 export function EstimateTrigger({ className }: { className?: string }) {
   const count = useEstimateStore(selectPacketCount)
   const isHydrated = useEstimateStore((state) => state.isHydrated)
-  const openDrawer = useEstimateStore((state) => state.actions.openDrawer)
+  const isOpen = useEstimateStore((state) => state.isOpen)
+  const toggle = useEstimateStore((state) => state.actions.toggle)
 
   const label = siteContent.ui.estimateAction
   const showCount = isHydrated && count > 0
 
   return (
     <Button
-      aria-haspopup="dialog"
+      aria-controls={SIDEBAR_ID}
+      aria-expanded={isOpen}
       aria-label={showCount ? `${label} (${count.toString()})` : label}
       className={cn("relative size-9 md:h-10 md:w-auto md:px-3", className)}
-      onClick={openDrawer}
+      onClick={toggle}
       size="icon"
       title={label}
       variant="outline"

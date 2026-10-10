@@ -4,7 +4,8 @@ export interface EstimateLineItem {
   readonly ingredient: string
   readonly manufacturer: string
   readonly packaging: string
-  readonly unitPriceCents: number
+  /** Price of one packet in mills (1/1000 USD). */
+  readonly unitPriceMills: number
   readonly quantity: number
 }
 

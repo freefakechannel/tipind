@@ -2,7 +2,7 @@
 
 import { RangeSlider } from "@/components/ui/slider"
 import { siteContent } from "@/config/content"
-import { formatCents } from "@/lib/format"
+import { formatMills } from "@/lib/format"
 
 import { useCatalogStore } from "../store/catalog-store"
 import type { PriceRange } from "../types"
@@ -24,12 +24,12 @@ export function PriceFilter({ bounds }: { bounds: PriceRange }) {
           </p>
         </div>
         <span className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-extrabold text-primary-text tabular-nums">
-          {formatCents(range[0])} – {formatCents(range[1])}
+          {formatMills(range[0])} – {formatMills(range[1])}
         </span>
       </div>
 
       <RangeSlider
-        formatValue={formatCents}
+        formatValue={formatMills}
         max={bounds[1]}
         maximumLabel={copy.maximumPriceAriaLabel}
         min={bounds[0]}
@@ -40,10 +40,10 @@ export function PriceFilter({ bounds }: { bounds: PriceRange }) {
 
       <div className="mt-1 flex justify-between text-[0.62rem] font-semibold text-muted-foreground tabular-nums">
         <span>
-          {copy.minimumPriceLabel}: {formatCents(bounds[0])}
+          {copy.minimumPriceLabel}: {formatMills(bounds[0])}
         </span>
         <span>
-          {copy.maximumPriceLabel}: {formatCents(bounds[1])}
+          {copy.maximumPriceLabel}: {formatMills(bounds[1])}
         </span>
       </div>
     </section>

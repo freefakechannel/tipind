@@ -1,8 +1,14 @@
 import type { CatalogProduct } from "@/features/catalog/types"
 import { normalizeText } from "@/lib/format"
 
-import { MAX_QUANTITY, MAX_UNIT_PRICE_CENTS } from "../constants"
+import {
+  MAX_QUANTITY,
+  MAX_TEXT_LENGTH,
+  MAX_UNIT_PRICE_MILLS,
+} from "../constants"
 import type { EstimateLineItem, LineItemDetails } from "../types"
+
+export const clip = (value: string) => value.trim().slice(0, MAX_TEXT_LENGTH)
 
 /** Stable across catalog rebuilds, so saved carts survive a data refresh. */
 export function lineItemId(details: LineItemDetails) {
@@ -11,20 +17,20 @@ export function lineItemId(details: LineItemDetails) {
     normalizeText(details.ingredient),
     normalizeText(details.manufacturer),
     normalizeText(details.packaging),
-    details.unitPriceCents,
+    details.unitPriceMills,
   ])
 }
 
 function toDetails(product: CatalogProduct): LineItemDetails | null {
-  const price = product.priceCents
-  if (price === null || price > MAX_UNIT_PRICE_CENTS) return null
+  const price = product.priceMills
+  if (price === null || price > MAX_UNIT_PRICE_MILLS) return null
 
   return {
-    ingredient: product.ingredient.trim(),
-    manufacturer: product.manufacturer.trim(),
-    name: product.name.trim(),
-    packaging: product.packaging.trim(),
-    unitPriceCents: price,
+    ingredient: clip(product.ingredient),
+    manufacturer: clip(product.manufacturer),
+    name: clip(product.name),
+    packaging: clip(product.packaging),
+    unitPriceMills: price,
   }
 }
 
@@ -53,11 +59,11 @@ export function clampQuantity(value: number) {
   return Math.min(MAX_QUANTITY, Math.max(1, Math.trunc(value)))
 }
 
-export const lineTotalCents = (item: EstimateLineItem) =>
-  item.unitPriceCents * item.quantity
+export const lineTotalMills = (item: EstimateLineItem) =>
+  item.unitPriceMills * item.quantity
 
-export const totalCents = (items: readonly EstimateLineItem[]) =>
-  items.reduce((sum, item) => sum + lineTotalCents(item), 0)
+export const totalMills = (items: readonly EstimateLineItem[]) =>
+  items.reduce((sum, item) => sum + lineTotalMills(item), 0)
 
 export const packetCount = (items: readonly EstimateLineItem[]) =>
   items.reduce((sum, item) => sum + item.quantity, 0)

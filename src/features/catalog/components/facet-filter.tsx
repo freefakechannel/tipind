@@ -7,7 +7,7 @@ import { useDeferredValue, useMemo, useState } from "react"
 import { SearchField } from "@/components/ui/search-field"
 import { VirtualList } from "@/components/ui/virtual-list"
 import { siteContent } from "@/config/content"
-import { formatMessage, formatNumber, normalizeText } from "@/lib/format"
+import { compactText, formatMessage, formatNumber } from "@/lib/format"
 
 import { selectFacet, useCatalogStore } from "../store/catalog-store"
 import type { FacetKind, FilterMode } from "../types"
@@ -36,11 +36,19 @@ const optionStyles = cva(
 
 function ModeIcon({ mode }: { mode: FilterMode | undefined }) {
   const className = "size-3.5 shrink-0"
-  if (mode === "include")
+  if (mode === "include") {
     return <CircleCheck aria-hidden="true" className={className} />
-  if (mode === "exclude")
+  }
+  if (mode === "exclude") {
     return <CircleMinus aria-hidden="true" className={className} />
+  }
   return <Plus aria-hidden="true" className={className} />
+}
+
+interface FacetOption {
+  /** Label without spaces or punctuation, for matching. */
+  key: string
+  label: string
 }
 
 interface FacetFilterProps {
@@ -62,19 +70,28 @@ export function FacetFilter({
   const selection = useCatalogStore((state) => selectFacet(state, kind))
   const cycleFacet = useCatalogStore((state) => state.actions.cycleFacet)
 
-  const indexed = useMemo(
+  const indexed = useMemo<FacetOption[]>(
     () =>
-      options.map((option) => ({ key: normalizeText(option), label: option })),
+      options.map((option) => ({ key: compactText(option), label: option })),
     [options]
   )
+
+  // "as life" -> "aslife", which matches "A. S Lifesciences".
+  // Options that start with the text come first.
   const visible = useMemo(() => {
-    const needle = normalizeText(deferredSearch.trim())
-    return needle
-      ? indexed.filter((option) => option.key.includes(needle))
-      : indexed
+    const needle = compactText(deferredSearch)
+    if (!needle) return indexed
+
+    const starts: FacetOption[] = []
+    const contains: FacetOption[] = []
+    for (const option of indexed) {
+      if (option.key.startsWith(needle)) starts.push(option)
+      else if (option.key.includes(needle)) contains.push(option)
+    }
+    return [...starts, ...contains]
   }, [indexed, deferredSearch])
 
-  function renderOption(option: { label: string }) {
+  function renderOption(option: FacetOption) {
     const mode = selection.get(option.label)
     const modeLabel =
       mode === "include"

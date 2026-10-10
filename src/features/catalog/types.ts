@@ -5,10 +5,11 @@ export interface CatalogProduct {
   readonly ingredient: string
   readonly manufacturer: string
   readonly packaging: string
-  /** Null when the source has no usable price. */
-  readonly priceCents: number | null
+  /** Price in mills (1/1000 USD). Null when the source has no usable price. */
+  readonly priceMills: number | null
 }
 
+/** [min, max] in mills. */
 export type PriceRange = readonly [number, number]
 
 export interface CatalogDataset {
@@ -23,22 +24,20 @@ export type FacetKind = "manufacturer" | "packaging"
 export type FilterMode = "include" | "exclude"
 export type FacetSelection = ReadonlyMap<string, FilterMode>
 
-/** Search term to the fields it matched (MiniSearch `match`). */
-export type MatchInfo = Readonly<Record<string, readonly string[]>>
-
-export interface CatalogEntry {
-  readonly product: CatalogProduct
-  readonly matches: MatchInfo
+export interface SearchQuery {
+  /** Lowercased, accent-free words. */
+  readonly terms: readonly string[]
+  /** The words joined without separators; only set for multi-word queries. */
+  readonly compact: string
 }
 
 export interface CatalogResults {
-  readonly rows: readonly CatalogEntry[]
+  readonly rows: readonly CatalogProduct[]
+  readonly query: SearchQuery
   readonly total: number
   readonly page: number
   readonly pageCount: number
   readonly firstItem: number
   readonly lastItem: number
   readonly isFiltered: boolean
-  readonly isIndexing: boolean
-  readonly searchError: string
 }
