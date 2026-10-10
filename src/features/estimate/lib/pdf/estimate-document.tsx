@@ -36,24 +36,25 @@ export interface EstimateDocumentInput {
 }
 
 /** Standard PDF fonts only cover Latin text; anything else becomes "?". */
-const PDF_CHAR_MAP: Readonly<Record<string, string>> = {
+// Map (not a plain object) so lookups can never hit prototype keys.
+const PDF_CHAR_MAP: ReadonlyMap<string, string> = new Map([
   // Corrupted-source marker: drop it instead of printing "?".
-  "\ufffd": "",
-  "\u03b1": "alpha",
-  "\u03b2": "beta",
-  "\u03b3": "gamma",
-  "\u03bc": "mu",
-  "\u2264": "<=",
-  "\u2265": ">=",
-  "\u00b1": "+/-",
-  "\u2212": "-",
-}
+  ["\ufffd", ""],
+  ["\u03b1", "alpha"],
+  ["\u03b2", "beta"],
+  ["\u03b3", "gamma"],
+  ["\u03bc", "mu"],
+  ["\u2264", "<="],
+  ["\u2265", ">="],
+  ["\u00b1", "+/-"],
+  ["\u2212", "-"],
+])
 
 const pdfText = (value: string) =>
   value
     .replace(
-      /[^\u0020-\u007E\u00A0-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u2022\u2026\u20AC]/g,
-      (char) => PDF_CHAR_MAP[char] ?? "?"
+      /[^\u0020-\u007E\u00A0-\u00FF\u2013-\u2014\u2018\u2019\u201C\u201D\u2022\u2026\u20AC]/g,
+      (char) => PDF_CHAR_MAP.get(char) ?? "?"
     )
     .replace(/ {2,}/g, " ")
 
