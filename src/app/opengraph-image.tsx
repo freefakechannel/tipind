@@ -1,4 +1,9 @@
 import { siteConfig } from "@/config/site"
+import {
+  BRAND_SURFACE_GRADIENT,
+  BRAND_TILE_GRADIENT,
+  PILL_PATHS,
+} from "@/lib/brand-image"
 import { ImageResponse } from "next/og"
 
 export const alt = `${siteConfig.name} — quality medicines for better healthcare`
@@ -9,66 +14,48 @@ export const size = {
 export const contentType = "image/png"
 export const dynamic = "force-static"
 
+/** Only the brand mark: the same pill glyph as the logo, on its tile. */
 export default function OpenGraphImage() {
   return new ImageResponse(
     <div
       style={{
-        width: "100%",
-        height: "100%",
+        alignItems: "center",
+        background: BRAND_SURFACE_GRADIENT,
         display: "flex",
-        flexDirection: "column",
+        height: "100%",
         justifyContent: "center",
-        padding: "76px",
-        background:
-          "linear-gradient(135deg, #edf5ff 0%, #ffffff 55%, #dcecff 100%)",
-        color: "#12284b",
-        fontFamily: "sans-serif",
+        width: "100%",
       }}
     >
       <div
         style={{
-          display: "flex",
           alignItems: "center",
-          gap: "20px",
-          marginBottom: "38px",
+          background: BRAND_TILE_GRADIENT,
+          borderRadius: 76,
+          display: "flex",
+          height: 300,
+          justifyContent: "center",
+          width: 300,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "82px",
-            height: "82px",
-            borderRadius: "24px",
-            background: "linear-gradient(145deg, #2a80ec, #1648a3)",
-            color: "white",
-            fontSize: "32px",
-            fontWeight: 800,
-          }}
-        >
-          TIP
-        </div>
-        <span style={{ color: "#246dd1", fontSize: "30px", fontWeight: 800 }}>
-          {siteConfig.name}
-        </span>
-      </div>
-      <div style={{ fontSize: "68px", fontWeight: 800, letterSpacing: "-3px" }}>
-        Quality medicines.
-      </div>
-      <div
-        style={{
-          marginTop: "10px",
-          color: "#246dd1",
-          fontSize: "68px",
-          fontWeight: 800,
-          letterSpacing: "-3px",
-        }}
-      >
-        Better healthcare.
-      </div>
-      <div style={{ marginTop: "30px", color: "#55647a", fontSize: "26px" }}>
-        Reliable pharmaceutical supply from India since 2012.
+        <svg height={176} viewBox="0 0 24 24" width={176}>
+          <path
+            d={PILL_PATHS.body}
+            fill="none"
+            stroke="#ffffff"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2.2}
+          />
+          <path
+            d={PILL_PATHS.seam}
+            fill="none"
+            stroke="#ffffff"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2.2}
+          />
+        </svg>
       </div>
     </div>,
     size
