@@ -58,11 +58,8 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     statusBarStyle: "default",
   },
-  icons: {
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-  },
+  // Icons come from the file conventions (app/icon.tsx, app/apple-icon.tsx)
+  // so the generated pill artwork is what every platform picks up.
   openGraph: {
     type: "website",
     locale: "en_US",
