@@ -8,4 +8,11 @@
   "vars": {
     "NEXT_PUBLIC_CATALOG_DATA_URL": "/data/catalog.e0a00877.dat",
   },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+      "persist": true,
+    },
+  },
 }
