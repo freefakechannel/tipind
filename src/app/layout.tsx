@@ -8,6 +8,7 @@ import { OfflineStatus } from "@/components/layout/offline-status"
 import { SiteHeader } from "@/components/layout/header"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { EstimateRoot } from "@/features/estimate/components/estimate-root"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 const bodyFont = localFont({
   display: "swap",
@@ -94,10 +95,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased selection:bg-primary-200 selection:text-ink">
         <ThemeProvider>
-          <OfflineStatus />
-          <SiteHeader />
-          {children}
-          <EstimateRoot />
+          <TooltipProvider>
+            <OfflineStatus />
+            <SiteHeader />
+            {children}
+            <EstimateRoot />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

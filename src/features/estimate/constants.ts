@@ -8,7 +8,7 @@ export const MAX_UNIT_PRICE_MILLS = 100_000_000
 /** Longer text is clipped, never rejected. */
 export const MAX_TEXT_LENGTH = 1_000
 export const SIDEBAR_ID = "estimate-sidebar"
-export const DEFAULT_WIDTH = 384
+export const DEFAULT_WIDTH = 420
 export const MIN_WIDTH = 320
 /** The sidebar can never be wider than this share of the screen. */
 export const MAX_VIEWPORT_FRACTION = 1 / 3

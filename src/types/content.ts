@@ -21,6 +21,10 @@ export interface SiteContent {
     offlineNotice: string
     estimateAction: string
     estimateCountLabel: string
+    estimateOpenTooltip: string
+    estimateCloseTooltip: string
+    contactOptionsTooltip: string
+    whatsappTooltip: string
   }
   hero: {
     eyebrow: string
@@ -98,6 +102,44 @@ export interface SiteContent {
       error: string
       indexing: string
       searchError: string
+    }
+    addTip: {
+      add: { title: string; note: string }
+      more: {
+        title: string
+        note: string
+      }
+      unavailable: {
+        title: string
+        note: string
+      }
+    }
+    facetTip: {
+      none: {
+        title: string
+        points: string[]
+      }
+      include: {
+        title: string
+        points: string[]
+      }
+      exclude: {
+        title: string
+        note: string
+      }
+    }
+    facetHelp: {
+      title: string
+      points: string[]
+    }
+    removeFilterTip: { title: string; note: string }
+    filtersTip: {
+      title: string
+      points: string[]
+    }
+    clearFiltersTip: {
+      title: string
+      note: string
     }
     emptyTitle: string
     emptyDescription: string

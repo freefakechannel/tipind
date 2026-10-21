@@ -1,9 +1,9 @@
 "use client"
 
-import { Button as BaseButton } from "@base-ui/react/button"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import {
   ArrowUpRight,
+  Calculator,
   Headset,
   Mail,
   MessageCircle,
@@ -12,167 +12,204 @@ import {
 } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import { ButtonLink } from "@/components/ui/button"
-import { siteConfig } from "@/config/site"
+import { Button, ButtonLink } from "@/components/ui/button"
+import { Tooltip } from "@/components/ui/tooltip"
 import { siteContent } from "@/config/content"
-import { cn } from "@/lib/utils"
+import { siteConfig } from "@/config/site"
+import { SIDEBAR_ID } from "@/features/estimate/constants"
+import {
+  selectPacketCount,
+  useEstimateStore,
+} from "@/features/estimate/store/estimate-store"
+import { scrollToSection } from "@/lib/scroll"
+
+const ui = siteContent.ui
+const round = "size-12 shadow-xl sm:size-13 [&_svg]:size-5"
+
+function EstimateButton() {
+  const count = useEstimateStore(selectPacketCount)
+  const isHydrated = useEstimateStore((state) => state.isHydrated)
+  const isOpen = useEstimateStore((state) => state.isOpen)
+  const toggle = useEstimateStore((state) => state.actions.toggle)
+  const showCount = isHydrated && count > 0
+
+  return (
+    <Tooltip
+      content={isOpen ? ui.estimateCloseTooltip : ui.estimateOpenTooltip}
+      side="left"
+    >
+      <Button
+        aria-controls={SIDEBAR_ID}
+        aria-expanded={isOpen}
+        aria-label={
+          showCount
+            ? `${ui.estimateAction} (${count.toString()})`
+            : ui.estimateAction
+        }
+        className={`relative ${round}`}
+        onClick={toggle}
+        size="icon"
+      >
+        <Calculator aria-hidden="true" />
+        {showCount && (
+          <span
+            aria-hidden="true"
+            className="absolute -top-1.5 -right-1.5 grid min-w-5 place-items-center rounded-full border-2 border-background bg-danger-600 px-1 text-[0.6rem] leading-4 font-extrabold text-white"
+          >
+            {count > 99 ? "99+" : count.toString()}
+          </span>
+        )}
+      </Button>
+    </Tooltip>
+  )
+}
 
 export function FloatingActions() {
   const [isOpen, setIsOpen] = useState(false)
-  const prefersReducedMotion = useReducedMotion()
-  const contactCopy = siteContent.ui
-  const phoneHasDestination = Boolean(siteConfig.contact.phone)
-  const emailHasDestination = Boolean(siteConfig.contact.email)
-  const whatsappHasDestination = Boolean(siteConfig.contact.whatsappNumber)
+  const reduceMotion = useReducedMotion()
+  const hasContactGap = !siteConfig.contact.phone || !siteConfig.contact.email
+  const hasWhatsapp = Boolean(siteConfig.contact.whatsappNumber)
 
   useEffect(() => {
     if (!isOpen) return
 
-    function handleKeyDown(event: KeyboardEvent) {
+    function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setIsOpen(false)
     }
-
-    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keydown", onKeyDown)
     return () => {
-      window.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("keydown", onKeyDown)
     }
   }, [isOpen])
 
-  const panelTransition = prefersReducedMotion
-    ? { duration: 0.01 }
-    : { type: "spring" as const, stiffness: 360, damping: 30, mass: 0.72 }
+  const close = () => {
+    setIsOpen(false)
+  }
 
   return (
+    // z-60 is below the estimate sidebar (z-70), so the sidebar covers this stack.
     <div className="fixed right-4 bottom-5 z-60 flex flex-col items-end gap-3 sm:right-6 sm:bottom-6">
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="w-[min(19rem,calc(100vw-2rem))] origin-bottom-right rounded-[22px] border border-border bg-card/95 p-3 shadow-2xl shadow-slate-950/25 backdrop-blur-xl"
-            exit={{ opacity: 0, scale: 0.94, y: 12 }}
-            id="floating-contact-options"
-            initial={
-              prefersReducedMotion
-                ? { opacity: 0 }
-                : { opacity: 0, scale: 0.94, y: 16 }
-            }
-            role="region"
-            aria-label={contactCopy.contactOptionsLabel}
-            transition={panelTransition}
-          >
-            <div className="mb-2.5 flex items-center gap-2 px-1.5 py-1">
-              <span className="grid size-8 place-items-center rounded-xl bg-primary/10 text-primary-text dark:bg-primary/20">
-                <Headset aria-hidden="true" className="size-4" />
-              </span>
-              <span className="text-sm font-extrabold text-foreground">
-                {contactCopy.contactOptionsLabel}
-              </span>
-            </div>
-
-            <div className="grid gap-2">
-              <ButtonLink
-                className="min-h-11 justify-start rounded-xl bg-primary px-3.5 text-white shadow-md shadow-primary/20 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg"
-                href={siteConfig.contact.phoneHref}
-                onClick={() => {
-                  setIsOpen(false)
-                }}
-              >
-                <span className="grid size-7 place-items-center rounded-full bg-white/15">
-                  <Phone aria-hidden="true" className="size-3.5" />
+      {/* Row 1 */}
+      <EstimateButton />
+      {/* Row 2. The panel is anchored to this row and opens upward over row 1. */}
+      <div className="relative flex items-center gap-3">
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              aria-label={ui.contactOptionsLabel}
+              className="absolute right-0 bottom-full z-10 mb-3 w-[min(19rem,calc(100vw-2rem))] origin-bottom-right rounded-2xl border border-border bg-card p-3 shadow-2xl shadow-neutral-950/25"
+              exit={{ opacity: 0, scale: 0.94, y: 12 }}
+              id="floating-contact-options"
+              initial={
+                reduceMotion
+                  ? { opacity: 0 }
+                  : { opacity: 0, scale: 0.94, y: 16 }
+              }
+              role="region"
+              transition={
+                reduceMotion
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 360, damping: 30, mass: 0.72 }
+              }
+            >
+              <div className="mb-2.5 flex items-center gap-2 px-1.5 py-1">
+                <span className="grid size-8 place-items-center rounded-xl bg-primary/10 text-primary-text">
+                  <Headset aria-hidden="true" className="size-4" />
                 </span>
-                {contactCopy.callUsAction}
-                <ArrowUpRight
-                  aria-hidden="true"
-                  className="ml-auto size-4 opacity-75"
-                />
-              </ButtonLink>
-              <ButtonLink
-                className="min-h-11 justify-start rounded-xl bg-rose-600 px-3.5 text-white shadow-md shadow-rose-950/15 hover:-translate-y-0.5 hover:bg-rose-700 hover:shadow-lg"
-                href={siteConfig.contact.emailHref}
-                onClick={() => {
-                  setIsOpen(false)
-                }}
-              >
-                <span className="grid size-7 place-items-center rounded-full bg-white/15">
-                  <Mail aria-hidden="true" className="size-3.5" />
+                <span className="text-sm font-extrabold text-foreground">
+                  {ui.contactOptionsLabel}
                 </span>
-                {contactCopy.emailUsAction}
-                <ArrowUpRight
-                  aria-hidden="true"
-                  className="ml-auto size-4 opacity-75"
-                />
-              </ButtonLink>
-            </div>
+              </div>
 
-            <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
-              <ButtonLink
-                className="min-h-10 flex-1 justify-center rounded-xl border border-border bg-background text-xs text-foreground hover:-translate-y-0.5 hover:border-primary/35 hover:bg-accent"
-                href="#contact"
-                onClick={() => {
-                  setIsOpen(false)
-                }}
-                variant="outline"
-              >
-                {contactCopy.contactUsAction}
-                <ArrowUpRight aria-hidden="true" className="size-3.5" />
-              </ButtonLink>
-              <BaseButton
-                aria-label={contactCopy.closeContactOptionsLabel}
-                className="grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-background text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                onClick={() => {
-                  setIsOpen(false)
-                }}
-                type="button"
-              >
-                <X aria-hidden="true" className="size-4" />
-              </BaseButton>
-            </div>
+              <div className="grid gap-2">
+                <ButtonLink
+                  className="min-h-11 justify-start rounded-xl px-3.5"
+                  href={siteConfig.contact.phoneHref}
+                  onClick={close}
+                >
+                  <span className="grid size-7 place-items-center rounded-full bg-white/15">
+                    <Phone aria-hidden="true" className="size-3.5" />
+                  </span>
+                  {ui.callUsAction}
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="ml-auto size-4 opacity-75"
+                  />
+                </ButtonLink>
+                <ButtonLink
+                  className="min-h-11 justify-start rounded-xl bg-highlight-700 px-3.5 text-white shadow-highlight-950/15 hover:bg-highlight-800"
+                  href={siteConfig.contact.emailHref}
+                  onClick={close}
+                >
+                  <span className="grid size-7 place-items-center rounded-full bg-white/15">
+                    <Mail aria-hidden="true" className="size-3.5" />
+                  </span>
+                  {ui.emailUsAction}
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="ml-auto size-4 opacity-75"
+                  />
+                </ButtonLink>
+              </div>
 
-            {(!phoneHasDestination || !emailHasDestination) && (
-              <p className="m-0 mt-2 px-1.5 text-[0.65rem] leading-5 text-muted-foreground">
-                {siteContent.contact.description}
-              </p>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="mt-3 border-t border-border pt-3">
+                <ButtonLink
+                  className="min-h-10 w-full rounded-xl text-xs"
+                  href="/#contact"
+                  onClick={(event) => {
+                    scrollToSection(event, "contact")
+                    close()
+                  }}
+                  variant="outline"
+                >
+                  {ui.contactUsAction}
+                  <ArrowUpRight aria-hidden="true" className="size-3.5" />
+                </ButtonLink>
+              </div>
 
-      <div className="flex items-center gap-3">
-        <BaseButton
-          aria-controls="floating-contact-options"
-          aria-expanded={isOpen}
-          aria-label={
-            isOpen
-              ? contactCopy.closeContactOptionsLabel
-              : contactCopy.contactUsAction
+              {hasContactGap && (
+                <p className="m-0 mt-2 px-1.5 text-[0.65rem] leading-5 text-muted-foreground">
+                  {siteContent.contact.description}
+                </p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <Tooltip
+          content={
+            isOpen ? ui.closeContactOptionsLabel : ui.contactOptionsTooltip
           }
-          className={cn(
-            "grid size-12 place-items-center rounded-full border border-white/15 bg-slate-950 text-white shadow-xl shadow-slate-950/25 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-slate-900 focus-visible:ring-4 focus-visible:ring-primary/35 focus-visible:outline-none active:scale-95 sm:size-13",
-            isOpen && "rotate-90"
-          )}
-          onClick={() => {
-            setIsOpen((open) => !open)
-          }}
-          type="button"
         >
-          {isOpen ? (
-            <X aria-hidden="true" className="size-5" />
-          ) : (
-            <Headset aria-hidden="true" className="size-5" />
-          )}
-        </BaseButton>
+          <Button
+            aria-controls="floating-contact-options"
+            aria-expanded={isOpen}
+            aria-label={
+              isOpen ? ui.closeContactOptionsLabel : ui.contactUsAction
+            }
+            className={`${round} border border-white/15 bg-neutral-950 text-white hover:bg-neutral-900 dark:bg-neutral-800 dark:hover:bg-neutral-700`}
+            onClick={() => {
+              setIsOpen((open) => !open)
+            }}
+            size="icon"
+          >
+            {isOpen ? <X aria-hidden="true" /> : <Headset aria-hidden="true" />}
+          </Button>
+        </Tooltip>
 
-        <ButtonLink
-          aria-label={contactCopy.chatAction}
-          className="relative grid size-13 place-items-center rounded-full border border-white/20 bg-whatsapp text-white shadow-xl ring-4 shadow-emerald-700/30 ring-emerald-500/20 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-whatsapp-hover focus-visible:ring-4 focus-visible:ring-emerald-300 focus-visible:outline-none active:scale-95 sm:size-14"
-          href={siteConfig.contact.whatsappHref}
-          rel={whatsappHasDestination ? "noreferrer" : undefined}
-          target={whatsappHasDestination ? "_blank" : undefined}
-          title={contactCopy.chatAction}
-        >
-          <MessageCircle aria-hidden="true" className="size-6" />
-          <span className="sr-only">{contactCopy.chatAction}</span>
-        </ButtonLink>
+        <Tooltip content={ui.whatsappTooltip}>
+          <ButtonLink
+            aria-label={ui.chatAction}
+            className="size-13 border border-white/20 bg-whatsapp text-white shadow-xl ring-4 shadow-success-700/30 ring-success-500/20 hover:bg-whatsapp-hover sm:size-14 [&_svg]:size-6"
+            href={siteConfig.contact.whatsappHref}
+            rel={hasWhatsapp ? "noreferrer" : undefined}
+            target={hasWhatsapp ? "_blank" : undefined}
+          >
+            <MessageCircle aria-hidden="true" />
+            <span className="sr-only">{ui.chatAction}</span>
+          </ButtonLink>
+        </Tooltip>
       </div>
     </div>
   )

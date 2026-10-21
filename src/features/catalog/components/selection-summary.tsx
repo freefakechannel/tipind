@@ -9,6 +9,7 @@ import { formatMessage, formatNumber } from "@/lib/format"
 
 import { useCatalogStore } from "../store/catalog-store"
 import type { FacetKind, FacetSelection, FilterMode } from "../types"
+import { formatTip, Tooltip } from "@/components/ui/tooltip"
 
 const chipStyles = cva(
   "inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-lg border px-2.5 py-1 text-left text-[0.65rem] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-ring",
@@ -89,22 +90,25 @@ export function SelectionSummary({ mode }: { mode: FilterMode }) {
       {chips.length > 0 ? (
         <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
           {chips.map((chip) => (
-            <button
-              aria-label={formatMessage(copy.removeFilterAriaLabel, {
-                label: chip.label,
-                mode: isInclude ? "included" : "excluded",
-              })}
-              className={chipStyles({ mode })}
+            <Tooltip
+              content={formatTip(copy.removeFilterTip, { label: chip.label })}
               key={`${chip.kind}:${chip.value}`}
-              onClick={() => {
-                removeFacet(chip.kind, chip.value)
-              }}
-              title={chip.label}
-              type="button"
             >
-              <span className="truncate">{chip.label}</span>
-              <X aria-hidden="true" className="size-3 shrink-0" />
-            </button>
+              <button
+                aria-label={formatMessage(copy.removeFilterAriaLabel, {
+                  label: chip.label,
+                  mode: isInclude ? "included" : "excluded",
+                })}
+                className={chipStyles({ mode })}
+                onClick={() => {
+                  removeFacet(chip.kind, chip.value)
+                }}
+                type="button"
+              >
+                <span className="truncate">{chip.label}</span>
+                <X aria-hidden="true" className="size-3 shrink-0" />
+              </button>
+            </Tooltip>
           ))}
         </div>
       ) : (

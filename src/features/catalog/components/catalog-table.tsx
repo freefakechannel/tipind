@@ -5,13 +5,14 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/content"
-import { formatMessage, formatMills } from "@/lib/format"
+import { formatMessage, formatMills, formatNumber } from "@/lib/format"
 import { productLineId, quantityOf } from "@/features/estimate/lib/line-items"
 import { useEstimateStore } from "@/features/estimate/store/estimate-store"
 import type { CatalogProduct, SearchQuery } from "../types"
 
 import { excerpt } from "../lib/search"
 import { HighlightedText } from "./highlighted-text"
+import { formatTip, Tooltip } from "@/components/ui/tooltip"
 
 const th =
   "px-4 py-3 text-[0.62rem] font-extrabold tracking-[0.075em] text-muted-foreground uppercase"
@@ -33,30 +34,38 @@ function AddToEstimateButton({
     lineId ? copy.addToEstimateAriaLabel : copy.unavailablePriceAriaLabel,
     { product: product.name }
   )
+  const tip =
+    lineId === null
+      ? copy.addTip.unavailable
+      : quantity > 0
+        ? formatTip(copy.addTip.more, { count: formatNumber(quantity) })
+        : copy.addTip.add
 
   return (
-    <Button
-      aria-label={label}
-      className="relative size-8 shrink-0 rounded-lg p-0 text-primary-text"
-      disabled={!isHydrated || lineId === null}
-      onClick={() => {
-        const result = addProduct(product)
-        if (result === "added" || result === "updated") onAdded(product.name)
-      }}
-      size="icon"
-      title={label}
-      variant="outline"
-    >
-      <Plus aria-hidden="true" />
-      {quantity > 0 && (
-        <span
-          aria-hidden="true"
-          className="absolute -top-1.5 -right-1.5 grid min-w-4.5 place-items-center rounded-full bg-primary px-1 text-[0.58rem] leading-4.5 font-extrabold text-primary-foreground"
-        >
-          {quantity > 99 ? "99+" : quantity.toString()}
-        </span>
-      )}
-    </Button>
+    // `wrap`: a disabled button gets no pointer events, so the wrapper owns the tooltip.
+    <Tooltip content={tip} wrap>
+      <Button
+        aria-label={label}
+        className="relative size-8 shrink-0 rounded-lg p-0 text-primary-text"
+        disabled={!isHydrated || lineId === null}
+        onClick={() => {
+          const result = addProduct(product)
+          if (result === "added" || result === "updated") onAdded(product.name)
+        }}
+        size="icon"
+        variant="outline"
+      >
+        <Plus aria-hidden="true" />
+        {quantity > 0 && (
+          <span
+            aria-hidden="true"
+            className="absolute -top-1.5 -right-1.5 grid min-w-4.5 place-items-center rounded-full bg-primary px-1 text-[0.58rem] leading-4.5 font-extrabold text-primary-foreground"
+          >
+            {quantity > 99 ? "99+" : quantity.toString()}
+          </span>
+        )}
+      </Button>
+    </Tooltip>
   )
 }
 

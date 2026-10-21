@@ -19,6 +19,10 @@ export const siteContent = {
       "You're offline. Pages and catalog data already saved on this device may still be available.",
     estimateAction: "Estimate",
     estimateCountLabel: "{count} items in your estimate",
+    estimateOpenTooltip: "Open your order estimate",
+    estimateCloseTooltip: "Close your order estimate",
+    contactOptionsTooltip: "Call or email our team",
+    whatsappTooltip: "Chat with us on WhatsApp",
   },
   hero: {
     eyebrow: "Trusted healthcare partner since",
@@ -104,6 +108,55 @@ export const siteContent = {
       error: "Catalog unavailable. No records are displayed.",
       indexing: "Preparing search…",
       searchError: "Search is unavailable. Try again later.",
+    },
+    addTip: {
+      add: { title: "Add to estimate", note: "Adds one packet." },
+      more: {
+        title: "{count} in your estimate",
+        note: "Click to add another packet.",
+      },
+      unavailable: {
+        title: "Can't be added yet",
+        note: "No price is listed for this product. Contact us for a quote.",
+      },
+    },
+    facetTip: {
+      none: {
+        title: "{value}",
+        points: [
+          "Click once to show only this",
+          "Click twice to hide it instead",
+        ],
+      },
+      include: {
+        title: "Showing only this",
+        points: [
+          "Click again to hide it instead",
+          "Click a third time to clear",
+        ],
+      },
+      exclude: {
+        title: "Hiding this",
+        note: "Click again to clear the filter.",
+      },
+    },
+    facetHelp: {
+      title: "How filters work",
+      points: [
+        "Click once: show only matching products",
+        "Click twice: hide matching products",
+        "Click a third time: clear it",
+        "Combine as many options as you like",
+      ],
+    },
+    removeFilterTip: { title: "Remove filter", note: "{label}" },
+    filtersTip: {
+      title: "Narrow the results",
+      points: ["Manufacturer", "Packaging", "Price range"],
+    },
+    clearFiltersTip: {
+      title: "Clear filters",
+      note: "Resets every filter. Your search text stays.",
     },
     emptyTitle: "No matches",
     emptyDescription:

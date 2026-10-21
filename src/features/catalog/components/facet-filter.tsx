@@ -1,7 +1,7 @@
 "use client"
 
 import { cva } from "class-variance-authority"
-import { CircleCheck, CircleMinus, Plus } from "lucide-react"
+import { CircleCheck, CircleMinus, Plus, Info } from "lucide-react"
 import { useDeferredValue, useMemo, useState } from "react"
 
 import { SearchField } from "@/components/ui/search-field"
@@ -11,6 +11,8 @@ import { compactText, formatMessage, formatNumber } from "@/lib/format"
 
 import { selectFacet, useCatalogStore } from "../store/catalog-store"
 import type { FacetKind, FilterMode } from "../types"
+
+import { formatTip, Tooltip } from "@/components/ui/tooltip"
 
 const ROW_HEIGHT = 44
 const LIST_HEIGHT = 288
@@ -99,29 +101,38 @@ export function FacetFilter({
         : mode === "exclude"
           ? copy.excludeSelected
           : copy.unselectedLabel
+    const tip = formatTip(
+      mode === "include"
+        ? copy.facetTip.include
+        : mode === "exclude"
+          ? copy.facetTip.exclude
+          : copy.facetTip.none,
+      { value: option.label }
+    )
 
     return (
-      <button
-        aria-label={formatMessage(copy.facetCycleAriaLabel, {
-          label: `${label}: ${option.label}`,
-          mode: modeLabel,
-        })}
-        aria-pressed={mode !== undefined}
-        className={optionStyles({ layout, mode: mode ?? "none" })}
-        onClick={() => {
-          cycleFacet(kind, option.label)
-        }}
-        title={option.label}
-        type="button"
-      >
-        <ModeIcon mode={mode} />
-        <span className="min-w-0 truncate text-left">{option.label}</span>
-        {mode && (
-          <span className="ml-auto rounded-full bg-white/20 px-1.5 py-0.5 text-[0.54rem] font-extrabold tracking-wide uppercase">
-            {modeLabel}
-          </span>
-        )}
-      </button>
+      <Tooltip content={tip}>
+        <button
+          aria-label={formatMessage(copy.facetCycleAriaLabel, {
+            label: `${label}: ${option.label}`,
+            mode: modeLabel,
+          })}
+          aria-pressed={mode !== undefined}
+          className={optionStyles({ layout, mode: mode ?? "none" })}
+          onClick={() => {
+            cycleFacet(kind, option.label)
+          }}
+          type="button"
+        >
+          <ModeIcon mode={mode} />
+          <span className="min-w-0 truncate text-left">{option.label}</span>
+          {mode && (
+            <span className="ml-auto rounded-full bg-white/20 px-1.5 py-0.5 text-[0.54rem] font-extrabold tracking-wide uppercase">
+              {modeLabel}
+            </span>
+          )}
+        </button>
+      </Tooltip>
     )
   }
 
@@ -130,7 +141,17 @@ export function FacetFilter({
   return (
     <fieldset className="min-w-0 space-y-2.5">
       <legend className="flex w-full items-center justify-between gap-2 text-xs font-extrabold text-ink-soft">
-        <span>{label}</span>
+        <span className="inline-flex items-center gap-1.5">
+          {label}
+          <Tooltip content={copy.facetHelp}>
+            <button
+              className="grid size-5 place-items-center rounded-full text-muted-foreground transition-colors hover:text-primary-text focus-visible:outline-2 focus-visible:outline-ring"
+              type="button"
+            >
+              <Info aria-hidden="true" className="size-3.5" />
+            </button>
+          </Tooltip>
+        </span>
         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.62rem] font-bold text-primary-text">
           {formatMessage(copy.selectedCount, {
             count: formatNumber(selection.size),

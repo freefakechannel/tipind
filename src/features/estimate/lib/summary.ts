@@ -1,7 +1,8 @@
-import { formatMills } from "@/lib/format"
+import { formatMills, formatNumber } from "@/lib/format"
 
 import type { EstimateLineItem } from "../types"
-import { lineTotalMills, totalMills } from "./line-items"
+import { totalMills } from "./line-items"
+import { totalUnits, unitWord } from "./pack-units"
 
 export function createEstimateSummary(
   items: readonly EstimateLineItem[],
@@ -11,9 +12,8 @@ export function createEstimateSummary(
     `${siteName} — order estimate (not an order)`,
     "",
     ...items.map((item) => {
-      const noun = item.quantity === 1 ? "packet" : "packets"
-      const pack = item.packaging ? ` of ${item.packaging}` : ""
-      return `${item.name} — ${item.quantity.toString()} ${noun}${pack} at ${formatMills(item.unitPriceMills)} each = ${formatMills(lineTotalMills(item))}`
+      const units = totalUnits(item)
+      return `${formatNumber(units)} ${unitWord(item.name, units)} of ${item.name}`
     }),
     "",
     `Estimated total: ${formatMills(totalMills(items))}`,
