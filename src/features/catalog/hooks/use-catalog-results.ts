@@ -1,8 +1,6 @@
 "use client"
-
 import { useDeferredValue, useMemo } from "react"
 
-import { PAGE_SIZE } from "../constants"
 import { filterProducts } from "../lib/filters"
 import { parseQuery, searchProducts } from "../lib/search"
 import {
@@ -16,7 +14,7 @@ const NO_PRODUCTS: readonly CatalogProduct[] = []
 export function useCatalogResults(): CatalogResults {
   const dataset = useCatalogStore((state) => state.dataset)
   const rawQuery = useCatalogStore((state) => state.query)
-  const page = useCatalogStore((state) => state.page)
+  const loadedCount = useCatalogStore((state) => state.loadedCount)
   const manufacturer = useCatalogStore((state) => state.manufacturer)
   const packaging = useCatalogStore((state) => state.packaging)
   const priceRange = useCatalogStore((state) => state.priceRange)
@@ -45,21 +43,16 @@ export function useCatalogResults(): CatalogResults {
   )
 
   const total = filtered.length
-  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  const currentPage = Math.min(page, pageCount)
-  const start = (currentPage - 1) * PAGE_SIZE
 
   const rows = useMemo(
-    () => filtered.slice(start, start + PAGE_SIZE),
-    [filtered, start]
+    () => filtered.slice(0, loadedCount),
+    [filtered, loadedCount]
   )
 
   return {
-    firstItem: total === 0 ? 0 : start + 1,
+    hasMore: loadedCount < total,
     isFiltered: isSearching || activeFilterCount > 0,
-    lastItem: Math.min(start + PAGE_SIZE, total),
-    page: currentPage,
-    pageCount,
+    loadedCount: Math.min(loadedCount, total),
     query,
     rows,
     total,

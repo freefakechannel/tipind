@@ -1,7 +1,7 @@
 "use client"
 
 import { Plus } from "lucide-react"
-import { useState } from "react"
+import { type RefObject, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/content"
@@ -13,6 +13,7 @@ import type { CatalogProduct, SearchQuery } from "../types"
 import { excerpt } from "../lib/search"
 import { HighlightedText } from "./highlighted-text"
 import { formatTip, Tooltip } from "@/components/ui/tooltip"
+import { InfiniteScrollSentinel } from "./infinite-scroll-sentinel"
 
 const th =
   "px-4 py-3 text-[0.62rem] font-extrabold tracking-[0.075em] text-muted-foreground uppercase"
@@ -76,6 +77,9 @@ function Price({ mills }: { mills: number | null }) {
 interface CatalogTableProps {
   rows: readonly CatalogProduct[]
   query: SearchQuery
+  hasMore: boolean
+  onLoadMore: () => void
+  scrollRef?: RefObject<HTMLElement | null>
 }
 
 /**
@@ -83,7 +87,13 @@ interface CatalogTableProps {
  * query), so it adapts when the estimate sidebar is open.
  * The parent must have the `@container` class.
  */
-export function CatalogTable({ rows, query }: CatalogTableProps) {
+export function CatalogTable({
+  rows,
+  query,
+  hasMore,
+  onLoadMore,
+  scrollRef,
+}: CatalogTableProps) {
   const copy = siteContent.catalog
   const [announcement, setAnnouncement] = useState("")
 
@@ -99,9 +109,11 @@ export function CatalogTable({ rows, query }: CatalogTableProps) {
         {announcement}
       </p>
 
+      {/* ── Card view (mobile) ── */}
       <ul className="divide-y divide-border/70 @4xl:hidden">
         {rows.map((product) => (
           <li className="space-y-2 px-5 py-4 sm:px-7" key={product.id}>
+            {/* … card content unchanged … */}
             <div className="flex items-start justify-between gap-3">
               <h4 className="m-0 min-w-0 text-sm font-bold text-primary-900 dark:text-primary-100">
                 <HighlightedText query={query} text={product.name} />
@@ -131,8 +143,16 @@ export function CatalogTable({ rows, query }: CatalogTableProps) {
             </div>
           </li>
         ))}
+        <li aria-hidden="true" className="list-none">
+          <InfiniteScrollSentinel
+            hasMore={hasMore}
+            onLoadMore={onLoadMore}
+            scrollRef={scrollRef}
+          />
+        </li>
       </ul>
 
+      {/* ── Table view (desktop) ── */}
       <div
         aria-label={copy.tableRegionLabel}
         className="hidden overflow-x-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring @4xl:block"
@@ -140,7 +160,7 @@ export function CatalogTable({ rows, query }: CatalogTableProps) {
         tabIndex={0}
       >
         <table className="w-full min-w-4xl border-collapse text-left">
-          <thead className="bg-neutral-50 dark:bg-neutral-900/70">
+          <thead className="sticky top-0 z-10 bg-neutral-50 dark:bg-neutral-900/70">
             <tr className="border-y border-border">
               <th className={`${th} w-[23%]`} scope="col">
                 {copy.tableHeadings.product}
@@ -203,6 +223,17 @@ export function CatalogTable({ rows, query }: CatalogTableProps) {
                 </td>
               </tr>
             ))}
+            {hasMore && (
+              <tr aria-hidden="true">
+                <td colSpan={6}>
+                  <InfiniteScrollSentinel
+                    hasMore={hasMore}
+                    onLoadMore={onLoadMore}
+                    scrollRef={scrollRef}
+                  />
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

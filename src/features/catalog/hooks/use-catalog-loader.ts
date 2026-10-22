@@ -15,6 +15,9 @@ export function useCatalogLoader(url: string | undefined): CatalogLoadStatus {
   useEffect(() => {
     if (!url) return
 
+    // ── Skip if data is already in the store ──
+    if (useCatalogStore.getState().dataset) return
+
     const controller = new AbortController()
     const { loadFailed, loadStarted, loadSucceeded } =
       useCatalogStore.getState().actions

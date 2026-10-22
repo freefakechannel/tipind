@@ -35,9 +35,7 @@ export interface CatalogResults {
   readonly rows: readonly CatalogProduct[]
   readonly query: SearchQuery
   readonly total: number
-  readonly page: number
-  readonly pageCount: number
-  readonly firstItem: number
-  readonly lastItem: number
+  readonly hasMore: boolean
+  readonly loadedCount: number
   readonly isFiltered: boolean
 }

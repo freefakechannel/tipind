@@ -8,13 +8,14 @@ import type {
   FilterMode,
   PriceRange,
 } from "../types"
+import { PAGE_SIZE } from "../constants"
 
 interface CatalogActions {
   loadStarted: () => void
   loadSucceeded: (dataset: CatalogDataset) => void
   loadFailed: (message: string) => void
   setQuery: (query: string) => void
-  setPage: (page: number) => void
+  loadMore: () => void
   toggleFilters: () => void
   cycleFacet: (kind: FacetKind, value: string) => void
   removeFacet: (kind: FacetKind, value: string) => void
@@ -27,7 +28,7 @@ export interface CatalogState {
   error: string
   dataset: CatalogDataset | null
   query: string
-  page: number
+  loadedCount: number
   filtersOpen: boolean
   manufacturer: FacetSelection
   packaging: FacetSelection
@@ -41,7 +42,7 @@ const NO_SELECTION: FacetSelection = new Map()
 const FILTER_DEFAULTS = {
   manufacturer: NO_SELECTION,
   packaging: NO_SELECTION,
-  page: 1,
+  loadedCount: PAGE_SIZE,
   priceRange: null,
 }
 
@@ -67,8 +68,8 @@ function patchFacet(
   change: (selection: FacetSelection) => FacetSelection
 ): Partial<CatalogState> {
   return kind === "manufacturer"
-    ? { manufacturer: change(state.manufacturer), page: 1 }
-    : { packaging: change(state.packaging), page: 1 }
+    ? { manufacturer: change(state.manufacturer), loadedCount: PAGE_SIZE }
+    : { packaging: change(state.packaging), loadedCount: PAGE_SIZE }
 }
 
 export const useCatalogStore = create<CatalogState>()((set) => ({
@@ -90,10 +91,10 @@ export const useCatalogStore = create<CatalogState>()((set) => ({
       set({ dataset: null, error: message, status: "error" })
     },
     setQuery: (query) => {
-      set({ page: 1, query })
+      set({ loadedCount: PAGE_SIZE, query }) // ← reset on search
     },
-    setPage: (page) => {
-      set({ page })
+    loadMore: () => {
+      set((state) => ({ loadedCount: state.loadedCount + PAGE_SIZE }))
     },
     toggleFilters: () => {
       set((state) => ({ filtersOpen: !state.filtersOpen }))

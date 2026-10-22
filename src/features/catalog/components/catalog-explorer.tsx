@@ -1,5 +1,4 @@
 "use client"
-
 import { Card } from "@/components/ui/card"
 import { Container } from "@/components/ui/container"
 import { siteContent } from "@/config/content"
@@ -12,10 +11,10 @@ import { getEmptyView, getStatusView } from "../lib/status"
 import { useCatalogStore } from "../store/catalog-store"
 import { CatalogEmptyState } from "./catalog-empty-state"
 import { CatalogFilters } from "./catalog-filters"
-import { CatalogPagination } from "./catalog-pagination"
 import { CatalogStat, CatalogStatusBar } from "./catalog-status"
 import { CatalogTable } from "./catalog-table"
 import { CatalogToolbar } from "./catalog-toolbar"
+import { useRef } from "react"
 
 interface CatalogExplorerProps {
   catalogDataUrl?: string | undefined
@@ -26,7 +25,10 @@ export function CatalogExplorer({ catalogDataUrl }: CatalogExplorerProps) {
   const status = useCatalogLoader(catalogDataUrl)
   const dataset = useCatalogStore((state) => state.dataset)
   const loadError = useCatalogStore((state) => state.error)
+  const loadMore = useCatalogStore((state) => state.actions.loadMore) // ← new
   const results = useCatalogResults()
+
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const productCount = dataset?.products.length ?? 0
   const view = { productCount, status }
@@ -100,9 +102,19 @@ export function CatalogExplorer({ catalogDataUrl }: CatalogExplorerProps) {
             </p>
           )}
 
-          <div className="@container" id={RESULTS_ANCHOR_ID}>
+          <div
+            className="@container max-h-[75vh] overflow-y-auto"
+            id={RESULTS_ANCHOR_ID}
+            ref={scrollRef}
+          >
             {results.rows.length > 0 ? (
-              <CatalogTable query={results.query} rows={results.rows} />
+              <CatalogTable
+                hasMore={results.hasMore}
+                onLoadMore={loadMore}
+                query={results.query}
+                rows={results.rows}
+                scrollRef={scrollRef}
+              />
             ) : (
               <CatalogEmptyState
                 busy={status === "loading"}
@@ -112,7 +124,31 @@ export function CatalogExplorer({ catalogDataUrl }: CatalogExplorerProps) {
             )}
           </div>
 
-          <CatalogPagination results={results} />
+          {/* ── Footer ── */}
+          <div className="flex min-h-12 items-center justify-between border-t border-border bg-neutral-50/70 px-5 py-3 sm:px-7 dark:bg-neutral-950/25">
+            <p className="m-0 text-[0.68rem] text-muted-foreground">
+              {results.total > 0 ? (
+                <>
+                  Showing{" "}
+                  <strong className="text-ink-soft">
+                    {formatNumber(results.loadedCount)}
+                  </strong>{" "}
+                  of{" "}
+                  <strong className="text-ink-soft">
+                    {formatNumber(results.total)}
+                  </strong>{" "}
+                  {results.isFiltered ? `matching ${noun}` : noun}
+                </>
+              ) : (
+                copy.noProducts
+              )}
+            </p>
+            {!results.hasMore && results.total > 0 && (
+              <span className="text-[0.62rem] font-semibold text-muted-foreground">
+                All loaded ✓
+              </span>
+            )}
+          </div>
         </Card>
 
         {copy.sourceNote && (

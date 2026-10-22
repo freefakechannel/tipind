@@ -31,10 +31,12 @@ export function HeroSection() {
       <div className="relative isolate h-[clamp(510px,72svh,610px)] min-h-125 w-full overflow-hidden bg-hero-image-surface md:h-[clamp(500px,68svh,650px)]">
         <Image
           alt={content.imageAlt}
+          blurDataURL="data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA" // tiny 1×1 version
           className="object-cover object-[68%_center] md:object-[center_52%] dark:brightness-65 dark:saturate-80"
           fetchPriority="high"
           fill
-          preload
+          placeholder="blur"
+          priority
           sizes="100vw"
           src={heroImage}
         />
