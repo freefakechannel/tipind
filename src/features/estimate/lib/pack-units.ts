@@ -21,12 +21,14 @@ export const totalUnits = (item: EstimateLineItem) =>
 /** Guesses the unit word from the product name. Falls back to "units". */
 export function unitWord(name: string, count: number) {
   const text = name.toLowerCase()
-  const single = /\b(?:inj|injection|vial|amp|ampoule)\b/.test(text)
-    ? "vial"
-    : /\bcap(?:s|sule|sules)?\b/.test(text)
-      ? "capsule"
-      : /\btab(?:s|let|lets)?\b/.test(text)
-        ? "tablet"
-        : "unit"
+  // const single = /\b(?:inj|injection|vial|amp|ampoule)\b/.test(text)
+  //   ? "vial"
+  //   : /\bcap(?:s|sule|sules)?\b/.test(text)
+  //     ? "capsule"
+  //     : /\btab(?:s|let|lets)?\b/.test(text)
+  //       ? "tablet"
+  //       : "unit"
+
+  const single = "unit"
   return count === 1 ? single : `${single}s`
 }
