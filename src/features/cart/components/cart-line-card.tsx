@@ -1,22 +1,20 @@
 "use client"
-
 import { Minus, Plus, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { siteContent } from "@/config/content"
 import { formatMessage, formatMills, formatNumber } from "@/lib/format"
 
 import { MAX_QUANTITY } from "../constants"
 import { lineTotalMills } from "../lib/line-items"
-import { useEstimateStore } from "../store/estimate-store"
-import type { EstimateLineItem } from "../types"
+import { useCartStore } from "../cart-store"
+import type { CartLineItem } from "../types"
+import { cartContent as copy } from "../content"
 
 const label =
   "mb-1.5 block text-[0.65rem] font-bold tracking-wide text-muted-foreground uppercase"
 
-function QuantityStepper({ item }: { item: EstimateLineItem }) {
-  const copy = siteContent.estimate
-  const setQuantity = useEstimateStore((state) => state.actions.setQuantity)
+function QuantityStepper({ item }: { item: CartLineItem }) {
+  const setQuantity = useCartStore((state) => state.actions.setQuantity)
   const values = {
     packSize: item.packaging || "listed pack",
     product: item.name,
@@ -69,9 +67,8 @@ function QuantityStepper({ item }: { item: EstimateLineItem }) {
 }
 
 /** Must render inside an `@container` (the sidebar provides one). */
-export function EstimateLineCard({ item }: { item: EstimateLineItem }) {
-  const copy = siteContent.estimate
-  const removeItem = useEstimateStore((state) => state.actions.removeItem)
+export function CartLineCard({ item }: { item: CartLineItem }) {
+  const removeItem = useCartStore((state) => state.actions.removeItem)
 
   const subtitle = [
     item.manufacturer,

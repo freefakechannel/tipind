@@ -40,9 +40,9 @@ export default function manifest(): MetadataRoute.Manifest {
         icons: [{ src: ICON_URL, sizes: "512x512", type: "image/png" }],
       },
       {
-        name: "Build an order estimate",
-        short_name: "Estimate",
-        url: "/",
+        name: "Go to checkout",
+        short_name: "Checkout",
+        url: "/checkout",
         icons: [{ src: ICON_URL, sizes: "512x512", type: "image/png" }],
       },
     ],

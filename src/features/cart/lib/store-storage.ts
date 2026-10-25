@@ -1,3 +1,5 @@
+import type { CartLineItem } from "../types"
+
 import { isRecord } from "@/lib/guards"
 
 import {
@@ -6,10 +8,9 @@ import {
   STORAGE_KEY,
   STORAGE_VERSION,
 } from "../constants"
-import type { EstimateLineItem } from "../types"
 import { clampQuantity, clip, lineItemId } from "./line-items"
 
-function readItem(candidate: unknown): EstimateLineItem | null {
+function readItem(candidate: unknown): CartLineItem | null {
   if (!isRecord(candidate)) return null
   const {
     ingredient,
@@ -52,10 +53,10 @@ function readItem(candidate: unknown): EstimateLineItem | null {
 }
 
 /** Validates untrusted data, merges duplicates, enforces limits. */
-export function normalizeItems(value: unknown): EstimateLineItem[] {
+export function normalizeItems(value: unknown): CartLineItem[] {
   if (!Array.isArray(value)) return []
   const candidates: unknown[] = value
-  const merged = new Map<string, EstimateLineItem>()
+  const merged = new Map<string, CartLineItem>()
 
   for (const candidate of candidates) {
     const item = readItem(candidate)
@@ -75,14 +76,14 @@ export function normalizeItems(value: unknown): EstimateLineItem[] {
   return [...merged.values()]
 }
 
-export function serializeItems(items: readonly EstimateLineItem[]) {
+export function serializeItems(items: readonly CartLineItem[]) {
   return JSON.stringify({
     items: normalizeItems(items),
     version: STORAGE_VERSION,
   })
 }
 
-export function parseItems(raw: string | null): EstimateLineItem[] {
+export function parseItems(raw: string | null): CartLineItem[] {
   if (!raw || raw.length > 2_000_000) return []
   try {
     const parsed: unknown = JSON.parse(raw)

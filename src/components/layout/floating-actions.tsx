@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import {
   ArrowUpRight,
-  Calculator,
+  ShoppingCart,
   Headset,
   Mail,
   MessageCircle,
@@ -16,41 +16,39 @@ import { Button, ButtonLink } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import { siteContent } from "@/config/content"
 import { siteConfig } from "@/config/site"
-import { SIDEBAR_ID } from "@/features/estimate/constants"
-import {
-  selectPacketCount,
-  useEstimateStore,
-} from "@/features/estimate/store/estimate-store"
+import { SIDEBAR_ID } from "@/features/cart/constants"
+import { selectPacketCount, useCartStore } from "@/features/cart/cart-store"
 import { scrollToSection } from "@/lib/scroll"
 
 const ui = siteContent.ui
 const round = "size-12 shadow-xl sm:size-13 [&_svg]:size-5"
 
-function EstimateButton() {
-  const count = useEstimateStore(selectPacketCount)
-  const isHydrated = useEstimateStore((state) => state.isHydrated)
-  const isOpen = useEstimateStore((state) => state.isOpen)
-  const toggle = useEstimateStore((state) => state.actions.toggle)
-  const showCount = isHydrated && count > 0
+function CartButton({
+  showCount,
+  count,
+}: {
+  showCount: boolean
+  count: number
+}) {
+  const isOpen = useCartStore((state) => state.isOpen)
+  const toggle = useCartStore((state) => state.actions.toggle)
 
   return (
     <Tooltip
-      content={isOpen ? ui.estimateCloseTooltip : ui.estimateOpenTooltip}
+      content={isOpen ? ui.cartCloseTooltip : ui.cartOpenTooltip}
       side="left"
     >
       <Button
         aria-controls={SIDEBAR_ID}
         aria-expanded={isOpen}
         aria-label={
-          showCount
-            ? `${ui.estimateAction} (${count.toString()})`
-            : ui.estimateAction
+          showCount ? `${ui.cartAction} (${count.toString()})` : ui.cartAction
         }
         className={`relative ${round}`}
         onClick={toggle}
         size="icon"
       >
-        <Calculator aria-hidden="true" />
+        <ShoppingCart aria-hidden="true" />
         {showCount && (
           <span
             aria-hidden="true"
@@ -70,6 +68,10 @@ export function FloatingActions() {
   const hasContactGap = !siteConfig.contact.phone || !siteConfig.contact.email
   const hasWhatsapp = Boolean(siteConfig.contact.whatsappNumber)
 
+  const count = useCartStore(selectPacketCount)
+  const isHydrated = useCartStore((state) => state.isHydrated)
+  const showCount = isHydrated && count > 0
+
   useEffect(() => {
     if (!isOpen) return
 
@@ -87,14 +89,33 @@ export function FloatingActions() {
   }
 
   return (
-    // z-60 is below the estimate sidebar (z-70), so the sidebar covers this stack.
+    // z-60 is below the cart sidebar (z-70), so the sidebar covers this stack.
     <div className="fixed right-4 bottom-5 z-60 flex flex-col items-end gap-3 sm:right-6 sm:bottom-6">
       {/* Row 1 */}
-      <EstimateButton />
+      <AnimatePresence initial={false}>
+        {showCount ? (
+          <motion.div
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 12 }}
+            id="floating-cart"
+            initial={
+              reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 16 }
+            }
+            role="region"
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 360, damping: 30, mass: 0.72 }
+            }
+          >
+            <CartButton count={count} showCount={showCount} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
       {/* Row 2. The panel is anchored to this row and opens upward over row 1. */}
       <div className="relative flex items-center gap-3">
         <AnimatePresence initial={false}>
-          {isOpen && (
+          {isOpen ? (
             <motion.div
               animate={{ opacity: 1, scale: 1, y: 0 }}
               aria-label={ui.contactOptionsLabel}
@@ -174,7 +195,7 @@ export function FloatingActions() {
                 </p>
               )}
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
 
         <Tooltip

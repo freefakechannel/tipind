@@ -303,7 +303,7 @@ async function main() {
     `Skipped: ${stats.invalid.toLocaleString()} invalid, ${stats.duplicates.toLocaleString()} duplicates`
   )
   console.log(
-    `Without a usable price: ${stats.noPrice.toLocaleString()} (shown, but can't be added to an estimate)`
+    `Without a usable price: ${stats.noPrice.toLocaleString()} (shown, but can't be added to an checkout)`
   )
   console.log(
     `Prices rounded to 3 decimals (source had more): ${stats.rounded.toLocaleString()}`

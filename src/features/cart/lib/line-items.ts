@@ -6,7 +6,7 @@ import {
   MAX_TEXT_LENGTH,
   MAX_UNIT_PRICE_MILLS,
 } from "../constants"
-import type { EstimateLineItem, LineItemDetails } from "../types"
+import type { CartLineItem, LineItemDetails } from "../types"
 
 export const clip = (value: string) => value.trim().slice(0, MAX_TEXT_LENGTH)
 
@@ -34,9 +34,7 @@ function toDetails(product: CatalogProduct): LineItemDetails | null {
   }
 }
 
-export function createLineItem(
-  product: CatalogProduct
-): EstimateLineItem | null {
+export function createLineItem(product: CatalogProduct): CartLineItem | null {
   const details = toDetails(product)
   return details ? { ...details, id: lineItemId(details), quantity: 1 } : null
 }
@@ -46,10 +44,7 @@ export function productLineId(product: CatalogProduct) {
   return details ? lineItemId(details) : null
 }
 
-export function quantityOf(
-  items: readonly EstimateLineItem[],
-  id: string | null
-) {
+export function quantityOf(items: readonly CartLineItem[], id: string | null) {
   if (id === null) return 0
   return items.find((item) => item.id === id)?.quantity ?? 0
 }
@@ -59,11 +54,11 @@ export function clampQuantity(value: number) {
   return Math.min(MAX_QUANTITY, Math.max(1, Math.trunc(value)))
 }
 
-export const lineTotalMills = (item: EstimateLineItem) =>
+export const lineTotalMills = (item: CartLineItem) =>
   item.unitPriceMills * item.quantity
 
-export const totalMills = (items: readonly EstimateLineItem[]) =>
+export const totalMills = (items: readonly CartLineItem[]) =>
   items.reduce((sum, item) => sum + lineTotalMills(item), 0)
 
-export const packetCount = (items: readonly EstimateLineItem[]) =>
+export const packetCount = (items: readonly CartLineItem[]) =>
   items.reduce((sum, item) => sum + item.quantity, 0)

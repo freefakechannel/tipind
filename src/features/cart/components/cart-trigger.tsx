@@ -1,21 +1,21 @@
 "use client"
 
-import { Calculator } from "lucide-react"
+import { ShoppingCart } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/content"
 import { cn } from "@/lib/utils"
 
 import { SIDEBAR_ID } from "../constants"
-import { selectPacketCount, useEstimateStore } from "../store/estimate-store"
+import { useCartStore, selectPacketCount } from "../cart-store"
 
-export function EstimateTrigger({ className }: { className?: string }) {
-  const count = useEstimateStore(selectPacketCount)
-  const isHydrated = useEstimateStore((state) => state.isHydrated)
-  const isOpen = useEstimateStore((state) => state.isOpen)
-  const toggle = useEstimateStore((state) => state.actions.toggle)
+export function CartTrigger({ className }: { className?: string }) {
+  const count = useCartStore(selectPacketCount)
+  const isHydrated = useCartStore((state) => state.isHydrated)
+  const isOpen = useCartStore((state) => state.isOpen)
+  const toggle = useCartStore((state) => state.actions.toggle)
 
-  const label = siteContent.ui.estimateAction
+  const label = siteContent.ui.cartAction
   const showCount = isHydrated && count > 0
 
   return (
@@ -29,7 +29,7 @@ export function EstimateTrigger({ className }: { className?: string }) {
       title={label}
       variant="outline"
     >
-      <Calculator aria-hidden="true" />
+      <ShoppingCart aria-hidden="true" />
       <span className="hidden md:inline">{label}</span>
       {showCount && (
         <span

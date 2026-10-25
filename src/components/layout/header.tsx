@@ -20,7 +20,7 @@ import { siteContent } from "@/config/content"
 import { siteConfig } from "@/config/site"
 import { useActiveSection } from "@/hooks/use-active-section"
 import { scrollToSection } from "@/lib/scroll"
-import { EstimateTrigger } from "@/features/estimate/components/estimate-trigger"
+import { CartTrigger } from "@/features/cart/components/cart-trigger"
 
 const STRIP_HEIGHT = 36 // px, matches h-9 in TopStrip
 const FLOAT_GAP = 10 // px, keep in sync with --float-gap below
@@ -181,7 +181,7 @@ export function SiteHeader() {
 
       <motion.div
         aria-hidden="true"
-        className="fixed top-0 right-(--estimate-w) left-0 z-60 h-0.75 origin-left bg-linear-to-r from-primary to-highlight-300 transition-[right] duration-300 ease-out motion-reduce:transition-none"
+        className="fixed top-0 right-(--cart-w) left-0 z-60 h-0.75 origin-left bg-linear-to-r from-primary to-highlight-300 transition-[right] duration-300 ease-out motion-reduce:transition-none"
         style={{ scaleX: reduceMotion ? scrollYProgress : barSpring }}
       />
 
@@ -189,7 +189,7 @@ export function SiteHeader() {
       <div aria-hidden="true" className="h-26 md:h-18" />
 
       <motion.div
-        className="pointer-events-none fixed top-0 right-(--estimate-w) left-0 z-50 transition-[right] duration-300 ease-out [--float-gap:0px] [--float-gutter:0px] [--float-radius:0px] motion-reduce:transition-none md:[--float-gap:10px] md:[--float-gutter:1rem] md:[--float-radius:24px]"
+        className="pointer-events-none fixed top-0 right-(--cart-w) left-0 z-50 transition-[right] duration-300 ease-out [--float-gap:0px] [--float-gutter:0px] [--float-radius:0px] motion-reduce:transition-none md:[--float-gap:10px] md:[--float-gutter:1rem] md:[--float-radius:24px]"
         style={{ y }}
       >
         <motion.div className="relative" style={{ y: gapY }}>
@@ -236,7 +236,7 @@ export function SiteHeader() {
                     className="hidden sm:block"
                   />
                 </ButtonLink>
-                <EstimateTrigger />
+                <CartTrigger />
                 <ThemeToggle className="size-9 border border-border text-ink-soft hover:bg-primary-100 hover:text-primary-700 md:size-10 dark:hover:bg-primary-950 dark:hover:text-primary-200" />
               </div>
             </Container>

@@ -1,38 +1,36 @@
 "use client"
-import { Calculator, Copy, Trash2, X } from "lucide-react"
+import { ShoppingCart, Copy, Trash2, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { siteContent } from "@/config/content"
 import { siteConfig } from "@/config/site"
 import { formatMills, formatNumber, pluralize } from "@/lib/format"
 
 import { SIDEBAR_ID } from "../constants"
-import { createEstimateSummary } from "../lib/summary"
 import {
   selectPacketCount,
   selectTotalMills,
-  useEstimateStore,
-} from "../store/estimate-store"
-import { EstimateLineCard } from "./estimate-line-card"
-import { EstimateResizeHandle } from "./estimate-resize-handle"
+  useCartStore,
+} from "../cart-store"
+import { createCartSummary } from "../lib/summary"
+import { cartContent as copy } from "../content"
+import { CartResizeHandle } from "./cart-resize-handle"
+import { CartLineCard } from "./cart-line-card"
+import { Tooltip } from "@/components/ui/tooltip"
 
 /**
  * Docked panel, not a modal: the page behind it stays usable.
  * On lg+ the page shrinks to make room (see main.css); below lg it covers the screen.
  */
-export function EstimateSidebar() {
-  const copy = siteContent.estimate
-  const isOpen = useEstimateStore((state) => state.isOpen)
-  const items = useEstimateStore((state) => state.items)
-  const isHydrated = useEstimateStore((state) => state.isHydrated)
-  const isStorageAvailable = useEstimateStore(
-    (state) => state.isStorageAvailable
-  )
-  const packets = useEstimateStore(selectPacketCount)
-  const total = useEstimateStore(selectTotalMills)
-  const { clear, setOpen } = useEstimateStore((state) => state.actions)
+export function CartSidebar() {
+  const isOpen = useCartStore((state) => state.isOpen)
+  const items = useCartStore((state) => state.items)
+  const isHydrated = useCartStore((state) => state.isHydrated)
+  const isStorageAvailable = useCartStore((state) => state.isStorageAvailable)
+  const packets = useCartStore(selectPacketCount)
+  const total = useCartStore(selectTotalMills)
+  const { clear, setOpen } = useCartStore((state) => state.actions)
   const [feedback, setFeedback] = useState("")
   const asideRef = useRef<HTMLElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -63,7 +61,7 @@ export function EstimateSidebar() {
   async function copySummary() {
     try {
       await navigator.clipboard.writeText(
-        createEstimateSummary(items, siteConfig.name)
+        createCartSummary(items, siteConfig.name)
       )
       setFeedback(copy.copiedMessage)
     } catch {
@@ -74,7 +72,7 @@ export function EstimateSidebar() {
   return (
     <aside
       aria-label={copy.title}
-      className="@container invisible fixed inset-y-0 right-0 z-70 flex h-dvh w-full translate-x-full flex-col border-l border-border bg-background text-foreground shadow-2xl transition-[transform,visibility] duration-300 ease-out data-[open=true]:visible data-[open=true]:translate-x-0 motion-reduce:transition-none lg:w-(--estimate-panel) lg:shadow-none"
+      className="@container invisible fixed inset-y-0 right-0 z-70 flex h-dvh w-full translate-x-full flex-col border-l border-border bg-background text-foreground shadow-2xl transition-[transform,visibility] duration-300 ease-out data-[open=true]:visible data-[open=true]:translate-x-0 motion-reduce:transition-none lg:w-(--cart-panel) lg:shadow-none"
       data-open={isOpen}
       id={SIDEBAR_ID}
       inert={!isOpen}
@@ -83,12 +81,12 @@ export function EstimateSidebar() {
       }}
       ref={asideRef}
     >
-      <EstimateResizeHandle />
+      <CartResizeHandle />
 
       <header className="flex shrink-0 items-start justify-between gap-4 border-b border-border px-5 py-4">
         <div className="min-w-0">
           <span className="inline-flex items-center gap-2 text-[0.68rem] font-extrabold tracking-[0.12em] text-primary-text uppercase">
-            <Calculator aria-hidden="true" className="size-4" />
+            <ShoppingCart aria-hidden="true" className="size-4" />
             {copy.eyebrow}
           </span>
           <h2 className="mt-1 mb-0 font-display text-xl font-extrabold tracking-tight text-ink">
@@ -98,23 +96,43 @@ export function EstimateSidebar() {
             {copy.description}
           </p>
         </div>
-        <Button
-          aria-label={copy.closeAction}
-          className="size-9 shrink-0 rounded-lg text-ink-soft"
-          onClick={() => {
-            setOpen(false)
-          }}
-          ref={closeRef}
-          size="icon"
-          variant="ghost"
-        >
-          <X aria-hidden="true" />
-        </Button>
+        <div className="flex flex-row items-center justify-center space-x-2">
+          <Tooltip
+            content={{
+              title: copy.clearAction,
+            }}
+            wrap
+          >
+            <Button
+              className="w-full shrink-0 rounded-lg text-danger-600 hover:bg-danger-50 hover:text-danger-700 dark:text-danger-300 dark:hover:bg-danger-800/50"
+              onClick={() => {
+                clear()
+                setFeedback("")
+              }}
+              variant="ghost"
+            >
+              <Trash2 aria-hidden="true" />
+              {copy.clearAction}
+            </Button>
+          </Tooltip>
+          <Button
+            aria-label={copy.closeAction}
+            className="size-9 shrink-0 rounded-lg text-ink-soft"
+            onClick={() => {
+              setOpen(false)
+            }}
+            ref={closeRef}
+            size="icon"
+            variant="ghost"
+          >
+            <X aria-hidden="true" />
+          </Button>
+        </div>
       </header>
 
       <div className="shrink-0 space-y-3 border-b border-border px-5 py-3">
         <Card className="gap-1 border-primary-200/80 bg-primary-50/80 p-3 text-xs leading-5 text-primary-950 dark:border-primary-900/80 dark:bg-primary-950/40 dark:text-primary-100">
-          <p className="m-0">{copy.localOnlyNotice}</p>
+          <p className="m-0">{copy.cartNotice}</p>
           <p className="m-0 text-primary-800 dark:text-primary-200">
             {copy.packPriceNote}
           </p>
@@ -136,12 +154,12 @@ export function EstimateSidebar() {
             className="flex min-h-48 items-center justify-center text-sm font-semibold text-muted-foreground"
             role="status"
           >
-            {copy.loadingMessage}
+            {copy.loadingCartMessage}
           </div>
         ) : items.length === 0 ? (
           <Card className="min-h-64 items-center justify-center p-8 text-center">
             <span className="mb-1 grid size-14 place-items-center rounded-2xl border border-primary-100 bg-primary-50 text-primary-text dark:border-primary-900 dark:bg-primary-950">
-              <Calculator aria-hidden="true" className="size-6" />
+              <ShoppingCart aria-hidden="true" className="size-6" />
             </span>
             <h3 className="m-0 font-display text-lg font-extrabold text-ink">
               {copy.emptyTitle}
@@ -151,11 +169,11 @@ export function EstimateSidebar() {
             </p>
           </Card>
         ) : (
-          <section aria-labelledby="estimate-products-heading">
+          <section aria-labelledby="cart-products-heading">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h3
                 className="m-0 font-display text-base font-extrabold text-ink"
-                id="estimate-products-heading"
+                id="cart-products-heading"
               >
                 {copy.productsHeading}
               </h3>
@@ -167,7 +185,7 @@ export function EstimateSidebar() {
             </div>
             <div className="space-y-3">
               {items.map((item) => (
-                <EstimateLineCard item={item} key={item.id} />
+                <CartLineCard item={item} key={item.id} />
               ))}
             </div>
           </section>
@@ -191,17 +209,6 @@ export function EstimateSidebar() {
             <Button onClick={() => void copySummary()} variant="outline">
               <Copy aria-hidden="true" />
               {copy.copyAction}
-            </Button>
-            <Button
-              className="w-full text-danger-700 hover:bg-danger-50 hover:text-danger-800 dark:text-danger-300 dark:hover:bg-danger-950/50"
-              onClick={() => {
-                clear()
-                setFeedback("")
-              }}
-              variant="ghost"
-            >
-              <Trash2 aria-hidden="true" />
-              {copy.clearAction}
             </Button>
             <p
               aria-live="polite"

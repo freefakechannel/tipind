@@ -1,16 +1,14 @@
 import { create } from "zustand"
-import { persist, type PersistStorage } from "zustand/middleware"
-
-import type { CatalogProduct } from "@/features/catalog/types"
+import type { PersistStorage } from "zustand/middleware"
+import { persist } from "zustand/middleware"
 
 import {
   clampQuantity,
   createLineItem,
   packetCount,
   totalMills,
-} from "../lib/line-items"
-import { parseItems, serializeItems } from "../lib/storage"
-import type { AddResult, EstimateLineItem } from "../types"
+} from "./lib/line-items"
+import type { CartLineItem, CartState } from "./types"
 
 import {
   DEFAULT_WIDTH,
@@ -18,37 +16,18 @@ import {
   MAX_QUANTITY,
   STORAGE_KEY,
   STORAGE_VERSION,
-} from "../constants"
-import { clampWidth } from "../lib/width"
+} from "./constants"
+import { clampWidth } from "./lib/width"
+import { parseItems, serializeItems } from "./lib/store-storage"
 
-interface EstimateActions {
-  addProduct: (product: CatalogProduct) => AddResult
-  setQuantity: (id: string, quantity: number) => void
-  setWidth: (width: number) => void
-  removeItem: (id: string) => void
-  clear: () => void
-  setOpen: (open: boolean) => void
-  toggle: () => void
-}
-
-export interface EstimateState {
-  items: readonly EstimateLineItem[]
-  isOpen: boolean
-  /** False until the saved estimate has been read (avoids hydration mismatch). */
-  isHydrated: boolean
-  isStorageAvailable: boolean
-  actions: EstimateActions
-  width: number
-}
-
-interface PersistedEstimate {
-  items: readonly EstimateLineItem[]
+interface PersistedCart {
+  items: readonly CartLineItem[]
 }
 
 let lastWritten = ""
 
 /** Reads and writes through the validating parser, never raw JSON. */
-const storage: PersistStorage<PersistedEstimate> = {
+export const cartStorage: PersistStorage<PersistedCart> = {
   getItem: (name) => {
     try {
       const items = parseItems(window.localStorage.getItem(name))
@@ -64,8 +43,8 @@ const storage: PersistStorage<PersistedEstimate> = {
       window.localStorage.setItem(name, serialized)
       lastWritten = serialized
     } catch {
-      if (useEstimateStore.getState().isStorageAvailable) {
-        useEstimateStore.setState({ isStorageAvailable: false })
+      if (useCartStore.getState().isStorageAvailable) {
+        useCartStore.setState({ isStorageAvailable: false })
       }
     }
   },
@@ -79,7 +58,7 @@ const storage: PersistStorage<PersistedEstimate> = {
   },
 }
 
-export const useEstimateStore = create<EstimateState>()(
+export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
@@ -142,16 +121,14 @@ export const useEstimateStore = create<EstimateState>()(
     }),
     {
       name: STORAGE_KEY,
-      partialize: (state): PersistedEstimate => ({ items: state.items }),
+      partialize: (state): PersistedCart => ({ items: state.items }),
       // Hydrated manually after mount so server and client markup match.
       skipHydration: true,
-      storage,
+      storage: cartStorage,
       version: STORAGE_VERSION,
     }
   )
 )
 
-export const selectPacketCount = (state: EstimateState) =>
-  packetCount(state.items)
-export const selectTotalMills = (state: EstimateState) =>
-  totalMills(state.items)
+export const selectPacketCount = (state: CartState) => packetCount(state.items)
+export const selectTotalMills = (state: CartState) => totalMills(state.items)

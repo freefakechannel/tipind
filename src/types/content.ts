@@ -19,10 +19,10 @@ export interface SiteContent {
     closeContactOptionsLabel: string
     contactOptionsLabel: string
     offlineNotice: string
-    estimateAction: string
-    estimateCountLabel: string
-    estimateOpenTooltip: string
-    estimateCloseTooltip: string
+    cartAction: string
+    cartCountLabel: string
+    cartOpenTooltip: string
+    cartCloseTooltip: string
     contactOptionsTooltip: string
     whatsappTooltip: string
   }
@@ -93,7 +93,7 @@ export interface SiteContent {
       manufacturer: string
       packaging: string
       rate: string
-      estimateButton: string
+      addToCartButton: string
     }
     status: {
       unconfigured: string
@@ -156,69 +156,9 @@ export interface SiteContent {
     previousPageAriaLabel: string
     nextPageAriaLabel: string
     sourceNote: string
-    addToEstimateAriaLabel: string
+    addToCartAriaLabel: string
+    addedToCartAnnouncement: string
     unavailablePriceAriaLabel: string
-    addedToEstimateAnnouncement: string
-  }
-  estimate: {
-    eyebrow: string
-    title: string
-    description: string
-    localOnlyNotice: string
-    emptyTitle: string
-    emptyDescription: string
-    browseCatalogAction: string
-    productsHeading: string
-    unitPriceLabel: string
-    quantityLabel: string
-    lineTotalLabel: string
-    totalLabel: string
-    packPriceNote: string
-    clearAction: string
-    closeAction: string
-    continueBrowsingAction: string
-    singlePacketPriceLabel: string
-    packLabel: string
-    packetCountLabel: string
-    copyAction: string
-    pdfAction: string
-    pdfBuilding: string
-    pdfFailure: string
-    pdfPreviewTitle: string
-    pdfPreviewDescription: string
-    pdfPreviewLabel: string
-    pdfDownloadAction: string
-    pdfDiscardAction: string
-    pdfOpenInTab: string
-    resizeAriaLabel: string
-    pdf: {
-      documentTitle: string
-      statusValue: string
-      referenceLabel: string
-      dateLabel: string
-      statusLabel: string
-      indexColumn: string
-      productColumn: string
-      packColumn: string
-      quantityColumn: string
-      unitColumn: string
-      totalColumn: string
-      productsLabel: string
-      packetsLabel: string
-      totalLabel: string
-      notesTitle: string
-      noteEstimate: string
-      notePrices: string
-      pageLabel: string
-    }
-    copiedMessage: string
-    copyFailureMessage: string
-    loadingMessage: string
-    storageUnavailableNotice: string
-    removeItemAriaLabel: string
-    decreaseQuantityAriaLabel: string
-    increaseQuantityAriaLabel: string
-    setQuantityAriaLabel: string
   }
   faq: {
     eyebrow: string

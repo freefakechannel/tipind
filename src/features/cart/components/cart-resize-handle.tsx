@@ -1,22 +1,20 @@
 "use client"
-
 import type { KeyboardEvent, PointerEvent } from "react"
-
-import { siteContent } from "@/config/content"
 
 import { DEFAULT_WIDTH, MIN_WIDTH } from "../constants"
 import { maxWidth, storeWidth } from "../lib/width"
-import { useEstimateStore } from "../store/estimate-store"
+import { useCartStore } from "../cart-store"
+import { cartContent } from "../content"
 
 const KEY_STEP = 24
 
-export function EstimateResizeHandle() {
-  const width = useEstimateStore((state) => state.width)
-  const setWidth = useEstimateStore((state) => state.actions.setWidth)
+export function CartResizeHandle() {
+  const width = useCartStore((state) => state.width)
+  const setWidth = useCartStore((state) => state.actions.setWidth)
 
   function commit(next: number) {
     setWidth(next)
-    storeWidth(useEstimateStore.getState().width)
+    storeWidth(useCartStore.getState().width)
   }
 
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
@@ -34,7 +32,7 @@ export function EstimateResizeHandle() {
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) return
     event.currentTarget.releasePointerCapture(event.pointerId)
     delete document.documentElement.dataset.resizing
-    storeWidth(useEstimateStore.getState().width)
+    storeWidth(useCartStore.getState().width)
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -63,7 +61,7 @@ export function EstimateResizeHandle() {
 
   return (
     <div
-      aria-label={siteContent.estimate.resizeAriaLabel}
+      aria-label={cartContent.resizeAriaLabel}
       aria-orientation="vertical"
       aria-valuemin={MIN_WIDTH}
       aria-valuenow={width}

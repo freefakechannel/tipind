@@ -177,9 +177,9 @@
   --elevation-soft: 0 16px 46px rgb(30 58 138 / 8%);
   --elevation-card: 0 5px 22px rgb(15 23 42 / 6%);
 
-  --estimate-width: 24rem; /* set by the resize handle */
-  --estimate-panel: min(max(var(--estimate-width), 20rem), 33.333vw);
-  --estimate-w: 0px;
+  --cart-width: 24rem; /* set by the resize handle */
+  --cart-panel: min(max(var(--cart-width), 20rem), 33.333vw);
+  --cart-w: 0px;
 }
 
 .dark {
@@ -322,14 +322,14 @@
   --shadow-card: var(--elevation-card);
 }
 
-/* Estimate sidebar: on lg+ the page shrinks to make room for it. */
+/* cart sidebar: on lg+ the page shrinks to make room for it. */
 @media (min-width: 64rem) {
-  html[data-estimate="open"] {
-    --estimate-w: var(--estimate-width);
+  html[data-cart="open"] {
+    --cart-w: var(--cart-width);
   }
 
   body {
-    padding-right: var(--estimate-w);
+    padding-right: var(--cart-w);
     transition: padding-right 300ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
@@ -341,12 +341,12 @@
 }
 
 @media (min-width: 64rem) {
-  html[data-estimate="open"] {
-    --estimate-w: var(--estimate-panel);
+  html[data-cart="open"] {
+    --cart-w: var(--cart-panel);
   }
 
   body {
-    padding-right: var(--estimate-w);
+    padding-right: var(--cart-w);
     transition: padding-right 300ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 }

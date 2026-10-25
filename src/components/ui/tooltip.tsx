@@ -5,6 +5,7 @@ import type { ReactElement, ReactNode } from "react"
 
 import { formatMessage } from "@/lib/format"
 import type { RichTip, TipContent } from "@/types/tooltip"
+import { cn } from "cn"
 
 type Side = "top" | "right" | "bottom" | "left"
 
@@ -76,6 +77,12 @@ export function Tooltip({
   side = "top",
   wrap = false,
 }: TooltipProps) {
+  const getArrowClass = () => {
+    if (side === "bottom") return "border-r border-b"
+    if (side === "right") return "border-t border-r"
+
+    return ""
+  }
   return (
     <BaseTooltip.Root>
       {wrap ? (
@@ -94,7 +101,12 @@ export function Tooltip({
         >
           <BaseTooltip.Popup className="relative w-fit max-w-xs origin-(--transform-origin) rounded-xs border border-accent bg-background px-3 py-2 text-xs leading-4.5 text-pretty text-foreground shadow-2xl transition-[opacity,scale] duration-150 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0 motion-reduce:transition-none">
             <TipBody content={content} />
-            <BaseTooltip.Arrow className="z-50 size-2.5 translate-y-[calc(-50%)] rotate-45 rounded-[2px] border-r border-b border-accent bg-background fill-background data-[side=bottom]:top-1 data-[side=inline-end]:top-1/2! data-[side=inline-end]:-left-1 data-[side=inline-end]:-translate-y-1/2 data-[side=inline-start]:top-1/2! data-[side=inline-start]:-right-1 data-[side=inline-start]:-translate-y-1/2 data-[side=left]:top-1/2! data-[side=left]:-right-1 data-[side=left]:-translate-y-1/2 data-[side=right]:top-1/2! data-[side=right]:-left-1 data-[side=right]:-translate-y-1/2 data-[side=top]:-bottom-2.5" />
+            <BaseTooltip.Arrow
+              className={cn(
+                getArrowClass(),
+                "z-50 size-2.5 translate-y-[calc(-50%)] rotate-45 rounded-[2px] border-accent bg-background fill-background data-[side=bottom]:top-1 data-[side=inline-end]:top-1/2! data-[side=inline-end]:-left-1 data-[side=inline-end]:-translate-y-1/2 data-[side=inline-start]:top-1/2! data-[side=inline-start]:-right-1 data-[side=inline-start]:-translate-y-1/2 data-[side=left]:top-1/2! data-[side=left]:-right-1 data-[side=left]:-translate-y-1/2 data-[side=right]:top-1/2! data-[side=right]:-left-1 data-[side=right]:-translate-y-1/2 data-[side=top]:-bottom-2.5"
+              )}
+            />
           </BaseTooltip.Popup>
         </BaseTooltip.Positioner>
       </BaseTooltip.Portal>

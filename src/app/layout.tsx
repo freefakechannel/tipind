@@ -7,8 +7,8 @@ import "@/styles/main.css"
 import { OfflineStatus } from "@/components/layout/offline-status"
 import { SiteHeader } from "@/components/layout/header"
 import { ThemeProvider } from "@/components/providers/theme-provider"
-import { EstimateRoot } from "@/features/estimate/components/estimate-root"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { CartRoot } from "@/features/cart/components/cart-root"
 
 const bodyFont = localFont({
   display: "swap",
@@ -99,7 +99,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <OfflineStatus />
             <SiteHeader />
             {children}
-            <EstimateRoot />
+            <CartRoot />
           </TooltipProvider>
         </ThemeProvider>
       </body>

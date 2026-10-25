@@ -1,24 +1,23 @@
 "use client"
-
 import { Plus } from "lucide-react"
 import { type RefObject, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/content"
 import { formatMessage, formatMills, formatNumber } from "@/lib/format"
-import { productLineId, quantityOf } from "@/features/estimate/lib/line-items"
-import { useEstimateStore } from "@/features/estimate/store/estimate-store"
 import type { CatalogProduct, SearchQuery } from "../types"
 
 import { excerpt } from "../lib/search"
 import { HighlightedText } from "./highlighted-text"
 import { formatTip, Tooltip } from "@/components/ui/tooltip"
 import { InfiniteScrollSentinel } from "./infinite-scroll-sentinel"
+import { useCartStore } from "@/features/cart/cart-store"
+import { productLineId, quantityOf } from "@/features/cart/lib/line-items"
 
 const th =
   "px-4 py-3 text-[0.62rem] font-extrabold tracking-[0.075em] text-muted-foreground uppercase"
 
-function AddToEstimateButton({
+function AddToCartButton({
   onAdded,
   product,
 }: {
@@ -27,12 +26,12 @@ function AddToEstimateButton({
 }) {
   const copy = siteContent.catalog
   const lineId = productLineId(product)
-  const isHydrated = useEstimateStore((state) => state.isHydrated)
-  const addProduct = useEstimateStore((state) => state.actions.addProduct)
-  const quantity = useEstimateStore((state) => quantityOf(state.items, lineId))
+  const isHydrated = useCartStore((state) => state.isHydrated)
+  const addProduct = useCartStore((state) => state.actions.addProduct)
+  const quantity = useCartStore((state) => quantityOf(state.items, lineId))
 
   const label = formatMessage(
-    lineId ? copy.addToEstimateAriaLabel : copy.unavailablePriceAriaLabel,
+    lineId ? copy.addToCartAriaLabel : copy.unavailablePriceAriaLabel,
     { product: product.name }
   )
   const tip =
@@ -44,7 +43,7 @@ function AddToEstimateButton({
 
   return (
     // `wrap`: a disabled button gets no pointer events, so the wrapper owns the tooltip.
-    <Tooltip content={tip} wrap>
+    <Tooltip content={tip} wrap side="right">
       <Button
         aria-label={label}
         className="relative size-8 shrink-0 rounded-lg p-0 text-primary-text"
@@ -84,7 +83,7 @@ interface CatalogTableProps {
 
 /**
  * Cards or table depending on the width of the results area (container
- * query), so it adapts when the estimate sidebar is open.
+ * query), so it adapts when the cart sidebar is open.
  * The parent must have the `@container` class.
  */
 export function CatalogTable({
@@ -99,7 +98,7 @@ export function CatalogTable({
 
   function handleAdded(name: string) {
     setAnnouncement(
-      formatMessage(copy.addedToEstimateAnnouncement, { product: name })
+      formatMessage(copy.addedToCartAnnouncement, { product: name })
     )
   }
 
@@ -118,7 +117,7 @@ export function CatalogTable({
               <h4 className="m-0 min-w-0 text-sm font-bold text-primary-900 dark:text-primary-100">
                 <HighlightedText query={query} text={product.name} />
               </h4>
-              <AddToEstimateButton onAdded={handleAdded} product={product} />
+              <AddToCartButton onAdded={handleAdded} product={product} />
             </div>
             <p className="m-0 line-clamp-2 text-[0.7rem] leading-5 text-muted-foreground">
               <HighlightedText
@@ -178,7 +177,7 @@ export function CatalogTable({
                 {copy.tableHeadings.rate}
               </th>
               <th className={`${th} pr-7 text-right`} scope="col">
-                {copy.tableHeadings.estimateButton}
+                {copy.tableHeadings.addToCartButton}
               </th>
             </tr>
           </thead>
@@ -215,10 +214,7 @@ export function CatalogTable({
                 </td>
                 <td className="py-3.5 pr-7">
                   <div className="flex justify-end">
-                    <AddToEstimateButton
-                      onAdded={handleAdded}
-                      product={product}
-                    />
+                    <AddToCartButton onAdded={handleAdded} product={product} />
                   </div>
                 </td>
               </tr>

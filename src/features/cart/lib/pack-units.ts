@@ -1,4 +1,4 @@
-import type { EstimateLineItem } from "../types"
+import type { CartLineItem } from "../types"
 
 // eslint-disable-next-line security/detect-unsafe-regex -- each repetition is anchored by a mandatory x/×/* literal, so there's no ambiguous partitioning of input between iterations (verified: O(n) on adversarial inputs, not exponential).
 const PACK_PATTERN = /^\s*\d+(?:\s*[x×*]\s*\d+)*\s*(?:'?s\s*)?$/i
@@ -15,12 +15,12 @@ export function unitsPerPacket(packaging: string) {
 }
 
 /** Total units ordered: 10 packets of "1x10" -> 100. */
-export const totalUnits = (item: EstimateLineItem) =>
+export const totalUnits = (item: CartLineItem) =>
   unitsPerPacket(item.packaging) * item.quantity
 
 /** Guesses the unit word from the product name. Falls back to "units". */
 export function unitWord(name: string, count: number) {
-  const text = name.toLowerCase()
+  // const text = name.toLowerCase()
   // const single = /\b(?:inj|injection|vial|amp|ampoule)\b/.test(text)
   //   ? "vial"
   //   : /\bcap(?:s|sule|sules)?\b/.test(text)

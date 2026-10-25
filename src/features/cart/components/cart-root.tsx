@@ -3,18 +3,19 @@
 import { useEffect } from "react"
 
 import { DEFAULT_WIDTH, STORAGE_KEY } from "../constants"
-import { isStorageWritable } from "../lib/storage"
+import { isStorageWritable } from "../lib/store-storage"
 import { clampWidth, readStoredWidth } from "../lib/width"
-import { useEstimateStore, type EstimateState } from "../store/estimate-store"
-import { EstimateSidebar } from "./estimate-sidebar"
+import { useCartStore } from "../cart-store"
+import { CartSidebar } from "./cart-sidebar"
+import type { CartState } from "../types"
 
-/** Mount once in the layout: hydrates the estimate, syncs tabs, drives the page offset. */
-export function EstimateRoot() {
+/** Mount once in the layout: hydrates the cart, syncs tabs, drives the page offset. */
+export function CartRoot() {
   useEffect(() => {
-    const { persist } = useEstimateStore
+    const { persist } = useCartStore
 
     void Promise.resolve(persist.rehydrate()).then(() => {
-      useEstimateStore.setState({
+      useCartStore.setState({
         isHydrated: true,
         isStorageAvailable: isStorageWritable(),
         width: clampWidth(readStoredWidth() ?? DEFAULT_WIDTH),
@@ -35,23 +36,23 @@ export function EstimateRoot() {
   // main.css reads these to make room for the sidebar.
   useEffect(() => {
     const root = document.documentElement
-    const apply = (state: EstimateState) => {
-      root.dataset.estimate = state.isOpen ? "open" : "closed"
-      root.style.setProperty("--estimate-width", `${state.width.toString()}px`)
+    const apply = (state: CartState) => {
+      root.dataset.cart = state.isOpen ? "open" : "closed"
+      root.style.setProperty("--cart-width", `${state.width.toString()}px`)
     }
-    apply(useEstimateStore.getState())
 
-    const unsubscribe = useEstimateStore.subscribe((state, previous) => {
+    apply(useCartStore.getState())
+    const unsubscribe = useCartStore.subscribe((state, previous) => {
       if (state.isOpen !== previous.isOpen || state.width !== previous.width) {
         apply(state)
       }
     })
     return () => {
       unsubscribe()
-      delete root.dataset.estimate
-      root.style.removeProperty("--estimate-width")
+      delete root.dataset.cart
+      root.style.removeProperty("--cart-width")
     }
   }, [])
 
-  return <EstimateSidebar />
+  return <CartSidebar />
 }
