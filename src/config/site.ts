@@ -1,4 +1,5 @@
 import type { SiteConfig } from "@/types/site"
+import type { CountryCode } from "libphonenumber-js"
 
 const DEFAULT_SITE_NAME = "tipind"
 const DEFAULT_SITE_URL = "https://tipind.mahiralamtohan.workers.dev"
@@ -22,6 +23,21 @@ const whatsappNumber = publicValue(
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
 ).replace(/\D/g, "")
 const contactEmail = publicValue(process.env.NEXT_PUBLIC_CONTACT_EMAIL)
+
+const telegramUsername = publicValue(
+  process.env.NEXT_PUBLIC_TELEGRAM_USERNAME
+).replace(/^@/, "")
+
+/** Countries you actively ship to. */
+export const DELIVERY_COUNTIES = [
+  "US",
+  "GB",
+  "NZ",
+  "IN",
+  "AU",
+] satisfies CountryCode[]
+
+export const NEED_OR_HAS_REGION = ["US", "AU", "IN"] satisfies CountryCode[]
 
 export const siteConfig = {
   name: publicValue(process.env.NEXT_PUBLIC_SITE_NAME, DEFAULT_SITE_NAME),
@@ -69,6 +85,10 @@ export const siteConfig = {
       : "#contact",
     email: contactEmail,
     emailHref: contactEmail ? `mailto:${contactEmail}` : "#contact",
+    telegramUsername,
+    telegramHref: telegramUsername
+      ? `https://t.me/${telegramUsername}`
+      : "#contact",
     supportHours: publicValue(process.env.NEXT_PUBLIC_SUPPORT_HOURS),
   },
   catalog: {

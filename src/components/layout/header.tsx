@@ -21,6 +21,7 @@ import { siteConfig } from "@/config/site"
 import { useActiveSection } from "@/hooks/use-active-section"
 import { scrollToSection } from "@/lib/scroll"
 import { CartTrigger } from "@/features/cart/components/cart-trigger"
+import { usePathname } from "next/navigation"
 
 const STRIP_HEIGHT = 36 // px, matches h-9 in TopStrip
 const FLOAT_GAP = 10 // px, keep in sync with --float-gap below
@@ -119,8 +120,12 @@ function MobileNav({ activeId, onSelect }: NavProps) {
 
 export function SiteHeader() {
   const reduceMotion = useReducedMotion()
-  const { activeId, lock } = useActiveSection(SECTION_IDS, HOME_ID)
   const { scrollY, scrollYProgress } = useScroll()
+
+  const pathname = usePathname()
+  const onHome = pathname === "/"
+  const { activeId: spyId, lock } = useActiveSection(SECTION_IDS, HOME_ID)
+  const activeId = onHome ? spyId : ""
 
   function handleSelect(id: string, event: MouseEvent<HTMLElement>) {
     lock(id)
@@ -236,7 +241,7 @@ export function SiteHeader() {
                     className="hidden sm:block"
                   />
                 </ButtonLink>
-                <CartTrigger />
+                {onHome && <CartTrigger />}
                 <ThemeToggle className="size-9 border border-border text-ink-soft hover:bg-primary-100 hover:text-primary-700 md:size-10 dark:hover:bg-primary-950 dark:hover:text-primary-200" />
               </div>
             </Container>

@@ -10,7 +10,8 @@
     "shadcn",
     "Stylesheet",
     "tipind",
-    "unconfigured"
+    "unconfigured",
+    "unserviced"
   ],
   "js/ts.tsdk.path": "node_modules\\typescript\\lib"
 }

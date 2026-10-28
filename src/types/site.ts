@@ -20,6 +20,8 @@ export interface SiteConfig {
     whatsappHref: string
     email: string
     emailHref: string
+    telegramUsername: string
+    telegramHref: string
     supportHours: string
   }
   catalog: {

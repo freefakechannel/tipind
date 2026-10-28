@@ -5,12 +5,15 @@ import { useEffect } from "react"
 import { DEFAULT_WIDTH, STORAGE_KEY } from "../constants"
 import { isStorageWritable } from "../lib/store-storage"
 import { clampWidth, readStoredWidth } from "../lib/width"
+import { usePathname } from "next/navigation"
 import { useCartStore } from "../cart-store"
 import { CartSidebar } from "./cart-sidebar"
 import type { CartState } from "../types"
 
 /** Mount once in the layout: hydrates the cart, syncs tabs, drives the page offset. */
 export function CartRoot() {
+  const onCheckout = usePathname().startsWith("/checkout")
+
   useEffect(() => {
     const { persist } = useCartStore
 
@@ -54,5 +57,5 @@ export function CartRoot() {
     }
   }, [])
 
-  return <CartSidebar />
+  return onCheckout ? null : <CartSidebar />
 }

@@ -1,8 +1,8 @@
 "use client"
-import { ShoppingCart, Copy, Trash2, X } from "lucide-react"
+import { ShoppingCart, Trash2, X, ArrowRight } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
-import { Button } from "@/components/ui/button"
+import { Button, ButtonLink } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { siteConfig } from "@/config/site"
 import { formatMills, formatNumber, pluralize } from "@/lib/format"
@@ -205,19 +205,17 @@ export function CartSidebar() {
           <p className="mt-1 mb-0 text-xs text-muted-foreground">
             {packetsLabel} total
           </p>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <Button onClick={() => void copySummary()} variant="outline">
-              <Copy aria-hidden="true" />
-              {copy.copyAction}
-            </Button>
-            <p
-              aria-live="polite"
-              className="mt-2 mb-0 min-h-5 text-xs text-muted-foreground"
-              role="status"
-            >
-              {feedback}
-            </p>
-          </div>
+          <ButtonLink
+            className="mt-4 w-full"
+            href="/checkout"
+            onClick={() => {
+              setOpen(false)
+            }}
+            size="lg"
+          >
+            {copy.proceedToCheckoutAction}
+            <ArrowRight aria-hidden="true" />
+          </ButtonLink>
         </div>
       )}
     </aside>
