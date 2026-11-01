@@ -1,0 +1,71 @@
+{
+  "name": "tipind",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "catalog:build": "node scripts/build-catalog.mjs --sheet \"https://script.google.com/macros/s/AKfycbzLaOQ7GDe_C-QKsYK4lPxcbMlgpulBtktNuoeF-4cGYdwE1X9YxrvWRoOCDvXIKmyy/exec\" --clean --write-env"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.8.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cn": "^0.4.0",
+    "country-region-data": "^4.1.0",
+    "libphonenumber-js": "^1.13.15",
+    "lucide-react": "^1.53.0",
+    "minisearch": "^7.2.0",
+    "motion": "^14.0.0",
+    "next": "16.4.0",
+    "next-themes": "^0.4.6",
+    "postcode-validator": "^3.10.26",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tailwind-animations": "^1.0.2",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.7",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.8.1",
+    "@eslint-react/eslint-plugin": "^5.24.9",
+    "@eslint/eslintrc": "^3.3.7",
+    "@eslint/js": "^10.0.1",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@next/eslint-plugin-next": "^16.4.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^10.12.0",
+    "eslint-config-next": "16.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-diff": "^2.1.7",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-react-compiler": "^19.1.0-rc.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-regexp": "^3.3.1",
+    "eslint-plugin-security": "^4.2.0",
+    "eslint-plugin-tailwindcss": "^4.4.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "tailwindcss": "^4",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.70.0"
+  },
+  "packageManager": "bun@1.4.2",
+  "ignoreScripts": [
+    "sharp",
+    "unrs-resolver"
+  ],
+  "trustedDependencies": [
+    "sharp",
+    "unrs-resolver"
+  ]
+}
