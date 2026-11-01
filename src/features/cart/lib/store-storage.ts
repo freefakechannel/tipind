@@ -18,6 +18,7 @@ function readItem(candidate: unknown): CartLineItem | null {
     name,
     packaging,
     quantity,
+    type,
     unitPriceMills,
   } = candidate
 
@@ -42,6 +43,7 @@ function readItem(candidate: unknown): CartLineItem | null {
     manufacturer: clip(manufacturer),
     name: clip(name),
     packaging: clip(packaging),
+    type: typeof type === "string" ? clip(type) : "",
     unitPriceMills,
   }
   // Never trust a stored id; derive it again.

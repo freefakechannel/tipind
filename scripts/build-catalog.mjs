@@ -78,6 +78,7 @@ const ALIASES = {
     "price",
   ],
   status: ["status"],
+  type: ["type", "dosage form", "form", "unit"],
 }
 
 const key = (value) =>
@@ -137,12 +138,14 @@ function readRow(row) {
   const name = pick(ALIASES.name)
   if (!name) return null
   const status = pick(ALIASES.status)
+  const type = pick(ALIASES.type)
   const price = pick(ALIASES.price)
   return {
     name,
     ingredient: pick(ALIASES.ingredient),
     manufacturer: pick(ALIASES.manufacturer),
     packaging: pick(ALIASES.packaging),
+    type,
     status,
     mills: parseMills(price),
     lossy: losesPrecision(price),
@@ -208,6 +211,7 @@ function build(json) {
 
   const manufacturers = dictionary(rows.map((row) => row.manufacturer))
   const packaging = dictionary(rows.map((row) => row.packaging))
+  const types = dictionary(rows.map((row) => row.type))
   const prices = rows.map((row) => row.mills).filter((mills) => mills !== NONE)
   const min = prices.length > 0 ? Math.min(...prices) : 0
   const max = prices.length > 0 ? Math.max(...prices) : 100_000
@@ -226,11 +230,13 @@ function build(json) {
       priceBounds: [min, max > min ? max : min + 1],
       manufacturers: manufacturers.list,
       packaging: packaging.list,
+      types: types.list,
       products: rows.map((row) => [
         row.name,
         row.ingredient,
         manufacturers.indexOf(row.manufacturer),
         packaging.indexOf(row.packaging),
+        types.indexOf(row.type),
         row.mills,
       ]),
     },

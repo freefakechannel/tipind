@@ -4,10 +4,10 @@ import type { CartLineItem } from "../types"
 import { totalMills } from "./line-items"
 import { totalUnits, unitWord } from "./pack-units"
 
-/** "100 units of 6MP TAB" */
+/** "100 tablets of 6MP TAB" */
 export function cartLineSummary(item: CartLineItem) {
   const units = totalUnits(item)
-  return `${formatNumber(units)} ${unitWord(item.name, units)} of ${item.name}`
+  return `${formatNumber(units)} ${unitWord(item.type, units)} of ${item.name}`
 }
 
 export function createCartSummary(
