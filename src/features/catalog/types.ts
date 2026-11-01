@@ -5,6 +5,8 @@ export interface CatalogProduct {
   readonly ingredient: string
   readonly manufacturer: string
   readonly packaging: string
+  /** Dosage form / unit type (e.g. "tablet", "capsule", "injection"). */
+  readonly type: string
   /** Price in mills (1/1000 USD). Null when the source has no usable price. */
   readonly priceMills: number | null
 }
@@ -16,6 +18,7 @@ export interface CatalogDataset {
   readonly products: readonly CatalogProduct[]
   readonly manufacturers: readonly string[]
   readonly packaging: readonly string[]
+  readonly types: readonly string[]
   readonly priceBounds: PriceRange
 }
 

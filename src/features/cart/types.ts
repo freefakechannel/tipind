@@ -7,6 +7,8 @@ export interface CartLineItem {
   readonly ingredient: string
   readonly manufacturer: string
   readonly packaging: string
+  /** Dosage form / unit type (e.g. "tablet", "capsule", "injection"). */
+  readonly type: string
   /** Price of one packet in mills (1/1000 USD). */
   readonly unitPriceMills: number
   readonly quantity: number

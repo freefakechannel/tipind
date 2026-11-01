@@ -48,19 +48,28 @@ function readProduct(
   row: unknown,
   id: number,
   manufacturers: readonly string[],
-  packaging: readonly string[]
+  packaging: readonly string[],
+  types: readonly string[]
 ): CatalogProduct {
-  if (!Array.isArray(row) || row.length !== 5) {
+  if (!Array.isArray(row) || row.length !== 6) {
     throw corrupt(`row ${id.toString()}`)
   }
   const cells: unknown[] = row
-  const [name, ingredient, manufacturerIndex, packagingIndex, price] = cells
+  const [
+    name,
+    ingredient,
+    manufacturerIndex,
+    packagingIndex,
+    typeIndex,
+    price,
+  ] = cells
 
   if (
     typeof name !== "string" ||
     typeof ingredient !== "string" ||
     !isIndex(manufacturerIndex) ||
     !isIndex(packagingIndex) ||
+    !isIndex(typeIndex) ||
     !isIndex(price)
   ) {
     throw corrupt(`row ${id.toString()}`)
@@ -72,6 +81,7 @@ function readProduct(
     ingredient,
     manufacturer: lookup(manufacturers, manufacturerIndex, "manufacturers"),
     packaging: lookup(packaging, packagingIndex, "packaging"),
+    type: lookup(types, typeIndex, "types"),
     priceMills: price === NO_VALUE ? null : price,
   }
 }
@@ -85,15 +95,17 @@ export function parseCatalog(value: unknown): CatalogDataset {
 
   const manufacturers = readStrings(value.manufacturers, "manufacturers")
   const packaging = readStrings(value.packaging, "packaging")
+  const types = readStrings(value.types, "types")
   if (!Array.isArray(value.products)) throw corrupt("products")
   const rows: unknown[] = value.products
 
   return {
     manufacturers,
     packaging,
+    types,
     priceBounds: readBounds(value.priceBounds),
     products: rows.map((row, id) =>
-      readProduct(row, id, manufacturers, packaging)
+      readProduct(row, id, manufacturers, packaging, types)
     ),
   }
 }

@@ -17,6 +17,7 @@ export function lineItemId(details: LineItemDetails) {
     normalizeText(details.ingredient),
     normalizeText(details.manufacturer),
     normalizeText(details.packaging),
+    normalizeText(details.type),
     details.unitPriceMills,
   ])
 }
@@ -30,6 +31,7 @@ function toDetails(product: CatalogProduct): LineItemDetails | null {
     manufacturer: clip(product.manufacturer),
     name: clip(product.name),
     packaging: clip(product.packaging),
+    type: clip(product.type),
     unitPriceMills: price,
   }
 }
