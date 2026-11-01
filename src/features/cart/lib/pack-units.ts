@@ -18,17 +18,25 @@ export function unitsPerPacket(packaging: string) {
 export const totalUnits = (item: CartLineItem) =>
   unitsPerPacket(item.packaging) * item.quantity
 
-/** Guesses the unit word from the product name. Falls back to "units". */
-export function unitWord(name: string, count: number) {
-  // const text = name.toLowerCase()
-  // const single = /\b(?:inj|injection|vial|amp|ampoule)\b/.test(text)
-  //   ? "vial"
-  //   : /\bcap(?:s|sule|sules)?\b/.test(text)
-  //     ? "capsule"
-  //     : /\btab(?:s|let|lets)?\b/.test(text)
-  //       ? "tablet"
-  //       : "unit"
+/** Used when a product has no type in the catalogue (985 rows). */
+const FALLBACK_UNIT = "unit"
 
-  const single = "unit"
-  return count === 1 ? single : `${single}s`
+/**
+ * Pluralizes a unit noun. Only two rules are needed for the whole taxonomy:
+ * suppository -> suppositories, patch -> patches, everything else +s.
+ * Note `syringe` and `cartridge` already carry the `e`, so they take a bare +s.
+ */
+export function pluralize(word: string) {
+  if (/[^aeiou]y$/.test(word)) return `${word.slice(0, -1)}ies`
+  if (/(?:[sxz]|ch|sh)$/.test(word)) return `${word}es`
+  return `${word}s`
+}
+
+/**
+ * The unit noun for an order line: "30 tablets of 2 B12 TAB (1x15)".
+ * `type` is the singular catalogue value; blank falls back to "unit".
+ */
+export function unitWord(type: string | null | undefined, count: number) {
+  const single = type?.trim().toLowerCase() ?? FALLBACK_UNIT
+  return count === 1 ? single : pluralize(single)
 }
